@@ -1,0 +1,94 @@
+.hide {
+	display: none;
+}
+
+.wrap.bl_contents {
+	margin: 20px auto !important;
+	width: 98% !important;
+}
+
+.bl_contacts form {
+	display: block;
+	overflow: hidden;
+}
+
+.bl_contacts h2 {
+	color: #e84496;
+}
+.bl_contacts hr {
+	border-top: 2px solid  #e84496;
+	border-bottom-width: 0;
+}
+
+.bl_contacts .form-table table {
+	width: 100%;
+	display: block;
+}
+
+.bl_contacts .form-table table::after {
+	clear: both;
+}
+
+.bl_contacts .form-table tr {
+	/*border: 1px solid black;*/
+	display: block;
+	overflow: hidden;
+}
+
+.one-col, .two-col, .three-col, .four-col {
+	width: 100%;
+	float: none;
+}
+.one-col::before {
+	clear: both;
+}
+@media screen and (min-width: 800px) {
+	.two-col, .four-col {
+		width: 49.5%;
+		float: left;
+		margin-bottom: 10px;
+	}
+	.three-col {
+		width: 32.5%;
+		float: left;
+		margin-bottom: 10px;
+	}
+}
+
+@media screen and (min-width: 1200px) {
+	.four-col {
+		width: 25%;
+	}
+}
+
+.bl_contacts .form-table th {
+	/*width: 40% !important;*/
+	max-width: 300px;
+	text-align: left;
+}
+@media screen and (min-width: 800px) {
+	.bl_contacts .form-table th {
+		text-align: right;
+	}
+}
+.bl_contacts .form-table th label {
+	width: 100% !important;
+	
+	
+}
+.bl_contacts .form-table td {
+	max-width: 60% !important;
+	width: 600px !important;
+	/*border: 1px solid red;*/
+}
+.bl_contacts .form-table td.full-width {
+	max-width: 100% !important;
+	width: 10000px!important;
+}
+.bl_contacts .form-table td.full-width:after {
+	clear: both;
+	float: none;
+}
+.bl_contacts .form-table .regular-text {
+	width: 100% !important;	
+}

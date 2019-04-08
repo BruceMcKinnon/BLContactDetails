@@ -1,13 +1,22 @@
 === BL Contact Details ===
+
 Contributors: Bruce McKinnon, with thanks to stvwhtly
+
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
+
 Requires at least: 4.8
+
 Tested up to: 5.1.1
+
 Stable tag: 2018.07
+
+
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
+
 == Description ==
+
 
 Provides a variety of SEO and general website support features:
 
@@ -24,9 +33,9 @@ Provides a variety of SEO and general website support features:
 * - Provides a popup box to provide EU privacy law compliance.
 
 
+
 == Installation ==
 
-Here we go:
 
 1. Upload the 'bl-contact-details' folder to the '/wp-content/plugins/' directory.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
@@ -36,14 +45,19 @@ Here we go:
 
 == Frequently Asked Questions ==
 
+
 = How do I edit my contact details? =
+
 
 Navigate to the settings page by clicking on 'BL Contacts' on the left hand menu.
 
 
+
 = What contact details can I store? =
 
+
 Current available contact fields are:
+
 
 	phone, phone2
 	fax, fax2
@@ -66,11 +80,13 @@ Current available contact fields are:
 	youtube
 	hours
 
+
 = How do I include details in my template? =
 
 You can use the following function call to output details in your templates:
 
 <?php if ( function_exists( 'contact_detail' ) ) { contact_detail( 'fax' ); } ?>
+
 
 = How do you fetch contact details without outputting the value? =
 
@@ -81,9 +97,11 @@ The fifth parameter passed to 'contact_detail()' determines whether the value is
 The above code will fetch the phone number stored and wrap the response in bold tags.
 
 
+
 == Screenshots ==
 
 1. The contact details management page.
+
 
 == Changelog ==
 
