@@ -199,12 +199,12 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				basename( dirname( __FILE__ ) ) . '/languages/'
 			);
 
-			// Init auto-update from BitBucket code
+			// Init auto-update from GitHub repo
 			require 'plugin-update-checker/plugin-update-checker.php';
 			$myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
-				'https://bitbucket.org/brilliantlogic/bl-contacts',
+				'https://github.com/BruceMcKinnon/BLContactDetails',
 				__FILE__,
-				'bl-contacts'
+				'bl-contact-details'
 			);
 		}
 
@@ -664,7 +664,6 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 		// Insert a block of JSON-LD structured data into the page
 		public function insert_json_ld( $att ) {
 			$retHtml = '<!-- BL Contact JSON feed --><script type="application/ld+json">{';
-
 
 				$retHtml .= '"@context": "http://schema.org",';
 				$retHtml .= '"@type": "' . $this->value('seo_business_type') . '",';
