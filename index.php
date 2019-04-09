@@ -5,7 +5,7 @@ Plugin URI: https://wordpress.org/plugins/bl-contacts
 Description: Manage contact details and opening hours for your web site. Additionally provides support for schema.org meta markup for contact information and EU cookie policy support.
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
-Version: 2019.01
+Version: 2019.02
 Author URI: https://ingeni.net
 
 
@@ -37,6 +37,8 @@ Author URI: https://ingeni.net
 											- Added checkbox for disabling EU cookie popup
 2018.07 - 11 Oct 2018 - Added BitBucket auto-updating via https://github.com/YahnisElsts/plugin-update-checker#bitbucket-integration
 2019.01 - 9 Apr 2019  - Added the blcontact-show-map shortcode. Displays a Leaflet/OpenStreetMap on the page, using the lat/lng values.
+2019.02 - 9 Apr 2019	- Fixed class calls to endsWith().
+											- Fixed problem in bl_build() where we referenced $type, not $atts['type'].
 
 
 
@@ -527,7 +529,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				case 'town':
 				case 'town2':
 					$value = '<span itemprop="addressLocality">'.$this->value( 'town' ).'</span> ';
-					if ($type == 'town2') {
+					if ($atts['type'] == 'town2') {
 						$value = '<span itemprop="addressLocality">'.$this->value( 'town2' ).'</span> ';
 					}
 					$value = '<span itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">'.$value.'</span>';
@@ -539,7 +541,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 					case 'state':
 					case 'state2':	
 						$value = '<span itemprop="addressRegion">'.$this->value( 'state' ).'</span> ';
-						if ($type == 'state2') {
+						if ($atts['type'] == 'state2') {
 							$value = '<span itemprop="addressRegion">'.$this->value( 'state2' ).'</span> ';
 						}
 						$value = '<span itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">'.$value.'</span>';
@@ -551,7 +553,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 					case 'postcode':
 					case 'postcode2':
 						$value = '<span itemprop="postalCode">'.$this->value( 'postcode' ).'</span> ';
-						if ($type == 'state2') {
+						if ($atts['type'] == 'state2') {
 							$value = '<span itemprop="postalCode">'.$this->value( 'postcode2' ).'</span> ';
 						}	
 						$value = '<span itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">'.$value.'</span>';
@@ -740,7 +742,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				if (stripos($this->value('youtube'),'https://youtube.com') !== false) {
 					$social_urls .= '"' . $this->value('youtube') . '",';
 				}
-				if (endsWith($social_urls,",")) {
+				if ($this->endsWith($social_urls,",")) {
 					$social_urls = substr($social_urls,0, strlen($social_urls)-1);
 				}
 				if (strlen($social_urls) > 0) {
@@ -771,7 +773,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				if ($this->value('open_sun') != $this->value('close_sun') ) {
 					$openHours .= '"Su ' . formatHours($this->value('open_sun')) . '-' . formatHours($this->value('close_sun')) . '",';
 				}
-				if (endsWith($openHours,",")) {
+				if ($this->endsWith($openHours,",")) {
 					$openHours = substr($openHours,0, strlen($openHours)-1);
 				}
 

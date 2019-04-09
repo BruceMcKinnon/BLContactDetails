@@ -4,9 +4,11 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2018.07
+Stable tag: 2019.02
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
+
+
 
 
 == Description ==
@@ -27,6 +29,7 @@ Provides a variety of SEO and general website support features:
 
 
 
+
 == Installation ==
 
 1. Upload the 'bl-contact-details' folder to the '/wp-content/plugins/' directory.
@@ -38,11 +41,17 @@ Provides a variety of SEO and general website support features:
 4. Display the details using either the shortcodes or function calls.
 
 
+
+
 == Frequently Asked Questions ==
+
+
 
 = How do I edit my contact details? =
 
 Navigate to the settings page by clicking on 'BL Contacts' on the left hand menu.
+
+
 
 
 = What contact details can I store? =
@@ -71,11 +80,15 @@ Current available contact fields are:
 	hours
 
 
+
+
 = How do I include details in my template? =
 
 You can use the following function call to output details in your templates:
 
 <?php if ( function_exists( 'contact_detail' ) ) { contact_detail( 'fax' ); } ?>
+
+
 
 
 = How do you fetch contact details without outputting the value? =
@@ -85,6 +98,27 @@ The fifth parameter passed to 'contact_detail()' determines whether the value is
 '$phone = contact_detail( 'phone', '<b>', '</b>', '', false );'
 
 The above code will fetch the phone number stored and wrap the response in bold tags.
+
+
+
+
+= How do I display the map? =
+
+Use the shortcode [blcontact-show-map]
+
+You can style the map via the .blmap CSS class.
+
+By default the map will be centered around the Lat/Lng values. But you can override it with the following parameters:
+
+lat - override the saved latitude value
+lng - override the saved longitude value
+title
+pin
+zoom - defaults to 15 if not saved
+addr_number - defaults to lat/lng 1, but you may also use lat/lng2
+
+
+
 
 
 
@@ -137,3 +171,9 @@ The above code will fetch the phone number stored and wrap the response in bold 
 											- Added checkbox for disabling EU cookie popup
 
 2018.07 - 11 Oct 2018 - Added BitBucket auto-updating via https://github.com/YahnisElsts/plugin-update-checker#bitbucket-integration
+
+2019.01 - 9 Apr 2019  - Added the [blcontact-show-map] shortcode. Displays a Leaflet/OpenStreetMap on the page, using the lat/lng values.
+
+2019.02 - 9 Apr 2019	- Fixed class calls to endsWith().
+											- Fixed problem in bl_build() where we referenced $type, not $atts['type'].
+
