@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2019.02
+Stable tag: 2019.03
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -177,3 +177,4 @@ addr_number - defaults to lat/lng 1, but you may also use lat/lng2
 2019.02 - 9 Apr 2019	- Fixed class calls to endsWith().
 											- Fixed problem in bl_build() where we referenced $type, not $atts['type'].
 
+2019.03	- 10 Apr 2019	- bl_insert_cookie_warning() - Now references jQuery.noconflict.

@@ -5,7 +5,7 @@ Plugin URI: https://wordpress.org/plugins/bl-contacts
 Description: Manage contact details and opening hours for your web site. Additionally provides support for schema.org meta markup for contact information and EU cookie policy support.
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
-Version: 2019.02
+Version: 2019.03
 Author URI: https://ingeni.net
 
 
@@ -39,7 +39,7 @@ Author URI: https://ingeni.net
 2019.01 - 9 Apr 2019  - Added the blcontact-show-map shortcode. Displays a Leaflet/OpenStreetMap on the page, using the lat/lng values.
 2019.02 - 9 Apr 2019	- Fixed class calls to endsWith().
 											- Fixed problem in bl_build() where we referenced $type, not $atts['type'].
-
+2019.03	- 10 Apr 2019	- bl_insert_cookie_warning() - Now references jQuery.noconflict.
 
 
 
@@ -255,7 +255,8 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			} else {
 			?>
 			<script type="text/javascript">
-				$(document).euCookieLawPopup().init({
+				var $jq = jQuery.noConflict();
+				$jq(document).euCookieLawPopup().init({
 					cookiePolicyUrl : '<?php echo($priv_page_url); ?>',
 					popupPosition : 'bottom',
 					popupTitle : '',
