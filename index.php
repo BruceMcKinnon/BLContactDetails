@@ -5,7 +5,7 @@ Plugin URI: https://wordpress.org/plugins/bl-contacts
 Description: Manage contact details and opening hours for your web site. Additionally provides support for schema.org meta markup for contact information and EU cookie policy support.
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
-Version: 2018.07
+Version: 2019.01
 Author URI: https://ingeni.net
 
 
@@ -36,6 +36,11 @@ Author URI: https://ingeni.net
 											- Updated code to align with WP PHP coding standards.
 											- Added checkbox for disabling EU cookie popup
 2018.07 - 11 Oct 2018 - Added BitBucket auto-updating via https://github.com/YahnisElsts/plugin-update-checker#bitbucket-integration
+2019.01 - 9 Apr 2019  - Added the blcontact-show-map shortcode. Displays a Leaflet/OpenStreetMap on the page, using the lat/lng values.
+
+
+
+
 */
 
 
@@ -60,11 +65,16 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				add_shortcode( 'blcontact', array( &$this, 'bl_shortcode' ) );
 				add_shortcode( 'contact', array( &$this, 'bl_shortcode' ) );		// Provide support for the old 'contact' shortcode
 				add_shortcode( 'blcontact-json-ld', array( &$this, 'insert_json_ld' ) );	// Insert JSON-LD structured data onto the page
-				
+				add_shortcode( 'blcontact-show-map', array( &$this, 'bl_show_open_street_map' ) );	// Insert a Leaflet/OpenStreetMap onto the page
+
 				add_filter( 'contact_detail', array( &$this, 'bl_build'), 1 );
 
 				add_action( 'wp_enqueue_scripts', array( &$this, 'bl_insert_cookiefy' ) );
 				add_action('wp_footer', array( &$this, 'bl_insert_cookie_warning'), 20 );
+
+				// And enqueue the Leaflet apis
+				add_action( 'wp_enqueue_scripts', array( &$this, 'bl_enqueue_leaflet' ) );
+
 
 				add_action('wp_head', array( &$this, 'bl_insert_google_analytics' ));
 				add_action('wp_footer', array( &$this, 'echo_json_ld' ));
@@ -281,13 +291,14 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 			<script type="text/javascript">
 			// Subscribe for the cookie consent events
-			if ( $(document).euCookieLawPopup().alreadyAccepted() ) {
+			var $jq = jQuery.noConflict();
+			if ( $jq(document).euCookieLawPopup().alreadyAccepted() ) {
 				// User clicked on enabling cookies. Now it’s safe to call the init functions.
 				initialiseGoogleAnalytics();
 			}
 
-			$(document).bind("user_cookie_consent_changed", function(event, object) {
-				const userConsentGiven = $(object).attr('consent');
+			$jq(document).bind("user_cookie_consent_changed", function(event, object) {
+				const userConsentGiven = $jq(object).attr('consent');
 				if (userConsentGiven) {
 					// User clicked on enabling cookies. Now it’s safe to call the init functions.
 					initialiseGoogleAnalytics();
@@ -309,6 +320,27 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			// search forward starting from end minus needle length characters
 			return $needle === "" || (($temp = strlen($haystack) - strlen($needle)) >= 0 && strpos($haystack, $needle, $temp) !== false);
 		}
+
+
+		private function get_local_upload_path() {
+			$upload_dir = wp_upload_dir();
+			return $upload_dir['baseurl'];
+		}
+
+		private function fb_log($msg) {
+			$upload_dir = wp_upload_dir();
+			$logFile = $upload_dir['basedir'] . '/' . 'fb_log.txt';
+			date_default_timezone_set('Australia/Sydney');
+
+			// Now write out to the file
+			$log_handle = fopen($logFile, "a");
+			if ($log_handle !== false) {
+				fwrite($log_handle, date("H:i:s").": ".$msg."\r\n");
+				fclose($log_handle);
+			}
+		}
+
+
 
 		private function bool2str($value) {
 			if ($value)
@@ -757,6 +789,121 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			echo ( $this->insert_json_ld( $att ) );
 		}
 
+
+		public function bl_enqueue_leaflet() {
+			$url = $siteurl . '/wp-content/plugins/' . basename(dirname(__FILE__));
+			wp_enqueue_style( 'bl-leaflet-style', $url . '/leaflet/leaflet.css' );
+			wp_enqueue_script( 'bl-leaflet-script', $url . '/leaflet/leaflet.js', array('jquery'), "1.0", false );
+		}
+
+
+		public function bl_show_open_street_map( $atts ) {
+			$map_atts = shortcode_atts( array(
+						'lat' => '',
+						'lng' => '',
+						'title' => '',
+						'pin' => '',
+						'zoom' => 15,
+						'addr_number' => 1,
+				), $atts );
+			
+
+			$lat = $map_atts['lat'];
+			$lng = $map_atts['lng'];
+			$zoom = $map_atts['zoom'];
+			$colour = $map_atts['pin_colour'];
+			$title = $map_atts['title'];
+		
+			
+			if ($lat == '' || $lng == '') {
+				// Grab the settings directly from the database
+				$options = get_option('contact');
+		
+				if ( $map_atts['addr_number'] == 2 ) {
+					$lat = $options['lat2'];
+					$lng = $options['lng2'];
+					$zoom = $options['zoom2'];	
+					$pin_colour = $options['pin_colour2'];
+				} else {
+					$lat = $options['lat'];
+					$lng = $options['lng'];
+					$zoom = $options['zoom'];
+					$pin_colour = $options['pin_colour'];
+				}
+
+				if ($zoom == '') {
+					$zoom = '15';
+				}
+		
+				if ( !$this->startsWith($pin_colour, '#') ) {
+					$pin_colour = '#'.$pin_colour;
+				}
+				if ( !preg_match('/^#[a-f0-9]{6}$/i', $pin_colour) ) {
+					$pin_colour = '#000000';
+				}
+		
+				$title = $options['address'].' '.$contactDetails->options['town'].' '.$contactDetails->options['state'].' '.$contactDetails->options['postcode'];
+
+			} 
+			
+			ob_start();
+			$randId = "map-".rand();
+			?>
+				<div id="<?php echo($randId); ?>" class="blmap" style="min-height:200px;min-width:200px;"></div>
+			
+				<script type="text/javascript">
+					var $jq = jQuery.noConflict();
+					$jq( document ).ready( function() {
+			
+		
+						function hexToRGB(h) {
+							let r = 0, g = 0, b = 0;
+		
+							// 3 digits
+							if (h.length == 4) {
+								r = "0x" + h[1] + h[1];
+								g = "0x" + h[2] + h[2];
+								b = "0x" + h[3] + h[3];
+		
+							// 6 digits
+							} else if (h.length == 7) {
+								r = "0x" + h[1] + h[2];
+								g = "0x" + h[3] + h[4];
+								b = "0x" + h[5] + h[6];
+							}
+		
+							return "rgb("+ +r + "," + +g + "," + +b + ")";
+						}
+		
+						function mapInit( mapId, lat, lng, place_title, zoom_level, pin_color ) {
+							var rgb_color = hexToRGB(pin_color);
+							var svg_pin = '<svg version="1.1" id="mapmarker" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 365 560" enable-background="new 0 0 365 560" xml:space="preserve"><g><path class="fill_color" style="fill:' + rgb_color + ';" d="M182.9,551.7c0,0.1,0.2,0.3,0.2,0.3S358.3,283,358.3,194.6c0-130.1-88.8-186.7-175.4-186.9 C96.3,7.9,7.5,64.5,7.5,194.6c0,88.4,175.3,357.4,175.3,357.4S182.9,551.7,182.9,551.7z M122.2,187.2c0-33.6,27.2-60.8,60.8-60.8 c33.6,0,60.8,27.2,60.8,60.8S216.5,248,182.9,248C149.4,248,122.2,220.8,122.2,187.2z"/></g></svg>';
+							var pin_url = encodeURI('data:image/svg+xml,' + svg_pin);
+
+							var map = L.map('<?php echo($randId); ?>').setView([lat,lng], zoom_level);
+		
+							L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+								attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+								}).addTo(map);
+		
+							var customIcon = L.icon({
+								iconUrl: pin_url,
+								iconSize:[50,50]
+								});
+		
+							L.marker([lat,lng], {icon: customIcon}).addTo(map);
+						}
+			
+						mapInit("<?php echo($randId); ?>", <?php echo($lat); ?>, <?php echo($lng); ?>, "<?php echo($title); ?>", <?php echo($zoom); ?>, "<?php echo($pin_colour); ?>");
+					});
+				</script>
+			<?php
+			
+			$retHtml = ob_get_contents();
+			ob_end_clean();
+			
+			return $retHtml;
+			}
 	}
 }
 
