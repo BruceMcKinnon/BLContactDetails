@@ -178,3 +178,5 @@ addr_number - defaults to lat/lng 1, but you may also use lat/lng2
 											- Fixed problem in bl_build() where we referenced $type, not $atts['type'].
 
 2019.03	- 10 Apr 2019	- bl_insert_cookie_warning() - Now references jQuery.noconflict.
+
+2019.04 - 11 Apr 2019 - Various minor bug fixes.

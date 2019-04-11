@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2019.03
+Version: 2019.04
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -42,7 +42,7 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2019.02 - 9 Apr 2019	- Fixed class calls to endsWith().
 											- Fixed problem in bl_build() where we referenced $type, not $atts['type'].
 2019.03	- 10 Apr 2019	- bl_insert_cookie_warning() - Now references jQuery.noconflict.
-
+2019.04 - 11 Apr 2019 - Various minor bug fixes.
 
 
 */
