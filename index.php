@@ -1,12 +1,14 @@
 <?php
 /*
 Plugin Name: BL Contacts
-Plugin URI: https://wordpress.org/plugins/bl-contacts
+Plugin URI: https://github.com/BruceMcKinnon/BLContactDetails
 Description: Manage contact details and opening hours for your web site. Additionally provides support for schema.org meta markup for contact information and EU cookie policy support.
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
-Version: 2019.03
 Author URI: https://ingeni.net
+Version: 2019.03
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
 
 2016.03 - 8 Jul 2016 - Added the 'innercontent' flag and Postal address.
@@ -230,6 +232,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 		// Insert the EU privacy policy cookie support
 		public function bl_insert_cookiefy() {
+			$siteurl = get_option('siteurl');
 			$url = $siteurl . '/wp-content/plugins/' . basename(dirname(__FILE__));
 			wp_enqueue_style( 'bl-eu-cookie-style', $url . '/jquery-eu-cookie-law-popup.css' );
 			wp_enqueue_script( 'bl-eu-cookie-law-script', $url . '/jquery-eu-cookie-law-popup.js', array('jquery'), "1.0", false );
@@ -794,6 +797,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 
 		public function bl_enqueue_leaflet() {
+			$siteurl = get_option('siteurl');
 			$url = $siteurl . '/wp-content/plugins/' . basename(dirname(__FILE__));
 			wp_enqueue_style( 'bl-leaflet-style', $url . '/leaflet/leaflet.css' );
 			wp_enqueue_script( 'bl-leaflet-script', $url . '/leaflet/leaflet.js', array('jquery'), "1.0", false );

@@ -33,6 +33,7 @@
 
 				<?php } elseif ( isset( $detail['input'] ) && $detail['input'] == 'checkbox' ) { ?>
 					<?php $value = 'checked';
+						$checked = 0;
 						if ( array_key_exists( $key, $this->options ) ) {
 							if ( empty($this->options[$key]) ) {
 								$this->options[$key] = 'checked';
