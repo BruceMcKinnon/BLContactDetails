@@ -134,6 +134,8 @@ function bl_contact_class($type) {
 		case 'email2':
 		case 'mobile2':
 		case 'pin_colour2':
+		case 'googleanalytics_code':
+		case 'googlemapsapi_key':
 			$retHtml = 'class="two-col"';
 			break;
 

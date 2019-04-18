@@ -116,6 +116,8 @@ title
 pin
 zoom - defaults to 15 if not saved
 addr_number - defaults to lat/lng 1, but you may also use lat/lng2
+googlemap - defaults to 0 (OpenStreetMap). Will display a Google Map if set to 1 and a Google Maps JS key is aved in the settings.
+
 
 
 
@@ -180,3 +182,5 @@ addr_number - defaults to lat/lng 1, but you may also use lat/lng2
 2019.03	- 10 Apr 2019	- bl_insert_cookie_warning() - Now references jQuery.noconflict.
 
 2019.04 - 11 Apr 2019 - Various minor bug fixes.
+
+2019.05 - 18 Apr 2019 - Re-introduced support for Google Maps. Use [blcontact-show-map googlemap="1"] shortcode. You must also provide a Google Maps JS key.

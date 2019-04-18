@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2019.04
+Version: 2019.05
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -43,7 +43,7 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 											- Fixed problem in bl_build() where we referenced $type, not $atts['type'].
 2019.03	- 10 Apr 2019	- bl_insert_cookie_warning() - Now references jQuery.noconflict.
 2019.04 - 11 Apr 2019 - Various minor bug fixes.
-
+2019.05 - 18 Apr 2019 - Re-introduced support for Google Maps. Use [blcontact-show-map googlemap="1"] shortcode. You must also provide a Google Maps JS key.
 
 */
 
@@ -69,7 +69,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				add_shortcode( 'blcontact', array( &$this, 'bl_shortcode' ) );
 				add_shortcode( 'contact', array( &$this, 'bl_shortcode' ) );		// Provide support for the old 'contact' shortcode
 				add_shortcode( 'blcontact-json-ld', array( &$this, 'insert_json_ld' ) );	// Insert JSON-LD structured data onto the page
-				add_shortcode( 'blcontact-show-map', array( &$this, 'bl_show_open_street_map' ) );	// Insert a Leaflet/OpenStreetMap onto the page
+				add_shortcode( 'blcontact-show-map', array( &$this, 'bl_map_router' ) );	// Insert a Leaflet/OpenStreetMap onto the page
 
 				add_filter( 'contact_detail', array( &$this, 'bl_build'), 1 );
 
@@ -116,6 +116,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				'pinterest' => __( 'Pinterest', 'contact' ),
 				'youtube' => __( 'YouTube', 'contact' ),
 				'googleanalytics_code' => __( 'Google Analytics Tracking Code', 'contact' ),
+				'googlemapsapi_key' => __( 'Google Maps JS API key', 'contact' ),
 				'eu_cookie_popup' => array(
 					'label' => __( 'Enable Cookie Warning Popup', 'contact' ),
 					'input' => 'checkbox'
@@ -193,7 +194,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				'lng2' => __( 'Longitude #2', 'contact' ),
 				'zoom2' => __( 'Map Zoom #2', 'contact' ),
 				'pin_colour2' => __( 'Map #2 Pin Colour (hex)', 'contact' ),
-			
+				
 			);
 
 			$this->details = (array) apply_filters( $this->tag . '_details', $this->details, 1 );
@@ -795,6 +796,136 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			echo ( $this->insert_json_ld( $att ) );
 		}
 
+		
+		public function bl_map_router ( $atts ) {
+			$retHtml = '';
+
+			$map_atts = shortcode_atts( array( 'googlemap' => '0' ), $atts );
+
+			if ( $map_atts['googlemap'] == '1'  ) {
+				$options = get_option('contact');
+				if ( strlen( trim( $options['googlemapsapi_key'] ) ) == 0 ) {
+					// Fallback to open maps if Google key not provided
+					$map_atts['googlemap'] = '0';
+				}
+			}
+
+			if ( $map_atts['googlemap'] == '1' ) {
+				$retHtml = $this->bl_show_google_map( $atts ); 
+			} else {
+				$retHtml = $this->bl_show_open_street_map ( $atts );
+			}
+			return $retHtml;
+		}
+
+		public function bl_show_google_map( $atts ) {
+			$map_atts = shortcode_atts( array(
+						'lat' => '',
+						'lng' => '',
+						'title' => '',
+						'pin' => '',
+						'zoom' => 16,
+						'addr_number' => 1,
+				), $atts );
+						
+			$lat = $map_atts['lat'];
+			$lng = $map_atts['lng'];
+			$zoom = $map_atts['zoom'];
+			$pin_icon = $map_atts['pin'];
+			$title = $map_atts['title'];
+			
+			if ($lat == '' || $lng == '') {
+				// Grab the settings directly from the database
+				$options = get_option('contact');
+
+				// And enqueue the Google Maps Api - key must be saved in the settings
+				wp_enqueue_script('googlemapsapi', 'https://maps.google.com/maps/api/js?key=' . $options['googlemapsapi_key'], array('jquery'), null, false);
+
+				if ( $map_atts['addr_number'] == 2 ) {
+					$lat = $options['lat2'];
+					$lng = $options['lng2'];
+					$zoom = $options['zoom2'];	
+					$pin_colour = $options['pin_colour2'];
+				} else {
+					$lat = $options['lat'];
+					$lng = $options['lng'];
+					$zoom = $options['zoom'];
+					$pin_colour = $options['pin_colour'];
+				}
+		
+				if ( !startsWith($pin_colour, '#') ) {
+					$pin_colour = '#'.$pin_colour;
+				}
+				if ( !preg_match('/^#[a-f0-9]{6}$/i', $pin_colour) ) {
+					$pin_colour = '#000000';
+				}
+				if ( (trim( $zoom ) == '') || ( $zoom == 0 ) ) {
+					$zoom = 15;
+				}
+		
+				$title = trim($options['address']).', '.trim($options['town']).', '.trim($options['state']).', '.trim($options['postcode']);
+			}
+			
+			ob_start();
+			$randId = "blmap-".rand();
+			?>
+				<div id="<?php echo($randId); ?>" class="blmap" style="min-height:200px;min-width:200px;"></div>
+			
+				<script type="text/javascript">
+					var $jq = jQuery.noConflict();
+					$jq( document ).ready( function() {
+			
+						function mapInit( mapId, lat, lng, place_title, zoom_level, pin_colour ) {
+								// Basic options for a simple Google Map
+								// For more options see: https://developers.google.com/maps/documentation/javascript/reference#MapOptions
+								var mapOptions = {
+										// How zoomed in you want the map to start at (always required)
+										zoom: zoom_level,
+			
+										// The latitude and longitude to center the map (always required)
+										center: new google.maps.LatLng( lat, lng ), 
+								};
+			
+								// Get the HTML DOM element that will contain your map 
+								// We are using a div with id="map" seen below in the <body>
+								var mapElement = document.getElementById( mapId );
+			
+								// Create the Google Map using our element and options defined above
+								var map = new google.maps.Map(mapElement, mapOptions);
+			
+								// Let's also add a marker while we're at it
+								var pin = "<?php echo($map_atts['pin']); ?>";
+								if (!pin) {
+									pin = {
+										path: "m 768,896 q 0,106 -75,181 -75,75 -181,75 -106,0 -181,-75 -75,-75 -75,-181 0,-106 75,-181 75,-75 181,-75 106,0 181,75 75,75 75,181 z m 256,0 q 0,-109 -33,-179 L 627,-57 q -16,-33 -47.5,-52 -31.5,-19 -67.5,-19 -36,0 -67.5,19 Q 413,-90 398,-57 L 33,717 Q 0,787 0,896 q 0,212 150,362 150,150 362,150 212,0 362,-150 150,-150 150,-362 z",
+										fillColor: pin_colour,
+										fillOpacity: 1,
+										anchor: new google.maps.Point(0,0),
+										strokeWeight: 0,
+										scale: 0.03,
+										rotation: 180
+									}
+								}
+			
+								var marker = new google.maps.Marker({
+										position: new google.maps.LatLng( lat, lng ),
+										map: map,
+										icon: pin,
+										title: place_title
+								});
+						}
+			
+						mapInit("<?php echo($randId); ?>", <?php echo($lat); ?>, <?php echo($lng); ?>, "<?php echo($title); ?>", <?php echo($zoom); ?>, "<?php echo($pin_colour); ?>");
+					});
+				</script>
+			<?php
+			
+			$retHtml = ob_get_contents();
+			ob_end_clean();
+			
+			return $retHtml;
+		}
+
 
 		public function bl_enqueue_leaflet() {
 			$siteurl = get_option('siteurl');
@@ -818,7 +949,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			$lat = $map_atts['lat'];
 			$lng = $map_atts['lng'];
 			$zoom = $map_atts['zoom'];
-			$colour = $map_atts['pin_colour'];
+			$pin_icon = $map_atts['pin'];
 			$title = $map_atts['title'];
 		
 			
@@ -849,8 +980,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 					$pin_colour = '#000000';
 				}
 		
-				$title = $options['address'].' '.$contactDetails->options['town'].' '.$contactDetails->options['state'].' '.$contactDetails->options['postcode'];
-
+				$title = $options['address'].' '.$options['town'].' '.$options['state'].' '.$options['postcode'];
 			} 
 			
 			ob_start();
@@ -908,7 +1038,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			
 			$retHtml = ob_get_contents();
 			ob_end_clean();
-			
+
 			return $retHtml;
 			}
 	}
