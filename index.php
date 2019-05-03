@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2019.05
+Version: 2019.06
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -44,7 +44,8 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2019.03	- 10 Apr 2019	- bl_insert_cookie_warning() - Now references jQuery.noconflict.
 2019.04 - 11 Apr 2019 - Various minor bug fixes.
 2019.05 - 18 Apr 2019 - Re-introduced support for Google Maps. Use [blcontact-show-map googlemap="1"] shortcode. You must also provide a Google Maps JS key.
-
+2019.06 - 3 May 2019	- Added cluster maps. User [blcontact-show-cluster-map].
+											- [blcontact-show-cluster-map] and [blcontact-show-cluster-map] now support the minheight="y" and minwidth="x" parameters to set minimum pixel or pecentage dimensions.
 */
 
 
@@ -70,6 +71,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				add_shortcode( 'contact', array( &$this, 'bl_shortcode' ) );		// Provide support for the old 'contact' shortcode
 				add_shortcode( 'blcontact-json-ld', array( &$this, 'insert_json_ld' ) );	// Insert JSON-LD structured data onto the page
 				add_shortcode( 'blcontact-show-map', array( &$this, 'bl_map_router' ) );	// Insert a Leaflet/OpenStreetMap onto the page
+				add_shortcode( 'blcontact-show-cluster-map', array( &$this, 'bl_cluster_map_router' ) );	// Insert a Leaflet/OpenStreetMap onto the page
 
 				add_filter( 'contact_detail', array( &$this, 'bl_build'), 1 );
 
@@ -78,7 +80,6 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 				// And enqueue the Leaflet apis
 				add_action( 'wp_enqueue_scripts', array( &$this, 'bl_enqueue_leaflet' ) );
-
 
 				add_action('wp_head', array( &$this, 'bl_insert_google_analytics' ));
 				add_action('wp_footer', array( &$this, 'echo_json_ld' ));
@@ -826,21 +827,33 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 						'pin' => '',
 						'zoom' => 16,
 						'addr_number' => 1,
+						'minheight' => '250px',
+						'minwidth' => '100%',
 				), $atts );
-						
+
+			$width = $map_atts['minwidth'];
+			$height = $map_atts['minheight'];
+
 			$lat = $map_atts['lat'];
 			$lng = $map_atts['lng'];
 			$zoom = $map_atts['zoom'];
 			$pin_icon = $map_atts['pin'];
 			$title = $map_atts['title'];
-			
+			$pin_colour = "#000000";
+
+			if (startsWith($pin_icon,'#')) {
+				// pin_icon is specifying the colour, not an image.
+				$pin_colour = $pin_icon;
+				$pin_icon = '';
+			}
+
+			// Grab the settings directly from the database
+			$options = get_option('contact');
+
+			// And enqueue the Google Maps Api - key must be saved in the settings
+			wp_enqueue_script('googlemapsapi', 'https://maps.google.com/maps/api/js?key=' . $options['googlemapsapi_key'], array('jquery'), null, false);
+
 			if ($lat == '' || $lng == '') {
-				// Grab the settings directly from the database
-				$options = get_option('contact');
-
-				// And enqueue the Google Maps Api - key must be saved in the settings
-				wp_enqueue_script('googlemapsapi', 'https://maps.google.com/maps/api/js?key=' . $options['googlemapsapi_key'], array('jquery'), null, false);
-
 				if ( $map_atts['addr_number'] == 2 ) {
 					$lat = $options['lat2'];
 					$lng = $options['lng2'];
@@ -865,11 +878,11 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 		
 				$title = trim($options['address']).', '.trim($options['town']).', '.trim($options['state']).', '.trim($options['postcode']);
 			}
-			
+
 			ob_start();
 			$randId = "blmap-".rand();
 			?>
-				<div id="<?php echo($randId); ?>" class="blmap" style="min-height:200px;min-width:200px;"></div>
+				<div id="<?php echo($randId); ?>" class="blmap" style="min-height:<?php echo($height); ?>;min-width:<?php echo($width); ?>;"></div>
 			
 				<script type="text/javascript">
 					var $jq = jQuery.noConflict();
@@ -894,7 +907,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 								var map = new google.maps.Map(mapElement, mapOptions);
 			
 								// Let's also add a marker while we're at it
-								var pin = "<?php echo($map_atts['pin']); ?>";
+								var pin = "<?php echo($pin_icon); ?>";
 								if (!pin) {
 									pin = {
 										path: "m 768,896 q 0,106 -75,181 -75,75 -181,75 -106,0 -181,-75 -75,-75 -75,-181 0,-106 75,-181 75,-75 181,-75 106,0 181,75 75,75 75,181 z m 256,0 q 0,-109 -33,-179 L 627,-57 q -16,-33 -47.5,-52 -31.5,-19 -67.5,-19 -36,0 -67.5,19 Q 413,-90 398,-57 L 33,717 Q 0,787 0,896 q 0,212 150,362 150,150 362,150 212,0 362,-150 150,-150 150,-362 z",
@@ -932,6 +945,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			$url = $siteurl . '/wp-content/plugins/' . basename(dirname(__FILE__));
 			wp_enqueue_style( 'bl-leaflet-style', $url . '/leaflet/leaflet.css' );
 			wp_enqueue_script( 'bl-leaflet-script', $url . '/leaflet/leaflet.js', array('jquery'), "1.0", false );
+			wp_enqueue_script( 'bl-leaflet-providers-script', $url . '/leaflet/leaflet-providers.js', array('bl-leaflet-script'), "0.1", false );
 		}
 
 
@@ -943,15 +957,25 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 						'pin' => '',
 						'zoom' => 15,
 						'addr_number' => 1,
-				), $atts );
+						'minheight' => '250px',
+						'minwidth' => '100%',
+			), $atts );
 			
+			$width = $map_atts['minwidth'];
+			$height = $map_atts['minheight'];
 
 			$lat = $map_atts['lat'];
 			$lng = $map_atts['lng'];
 			$zoom = $map_atts['zoom'];
 			$pin_icon = $map_atts['pin'];
 			$title = $map_atts['title'];
-		
+			$pin_colour = "#000000";
+
+			if (startsWith($pin_icon,'#')) {
+				// pin_icon is specifying the colour, not an image.
+				$pin_colour = $pin_icon;
+				$pin_icon = '';
+			}
 			
 			if ($lat == '' || $lng == '') {
 				// Grab the settings directly from the database
@@ -986,7 +1010,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			ob_start();
 			$randId = "map-".rand();
 			?>
-				<div id="<?php echo($randId); ?>" class="blmap" style="min-height:200px;min-width:200px;"></div>
+				<div id="<?php echo($randId); ?>" class="blmap" style="min-height:<?php echo($height); ?>;min-width:<?php echo($width); ?>;"></div>
 			
 				<script type="text/javascript">
 					var $jq = jQuery.noConflict();
@@ -1018,11 +1042,14 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 							var pin_url = encodeURI('data:image/svg+xml,' + svg_pin);
 
 							var map = L.map('<?php echo($randId); ?>').setView([lat,lng], zoom_level);
-		
+
 							L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 								attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 								}).addTo(map);
-		
+							
+							// add Wikimedia style to map.
+							L.tileLayer.provider('Wikimedia').addTo(map);
+
 							var customIcon = L.icon({
 								iconUrl: pin_url,
 								iconSize:[50,50]
@@ -1040,7 +1067,321 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			ob_end_clean();
 
 			return $retHtml;
+		}
+
+
+
+		public function bl_cluster_map_router ( $atts ) {
+			$retHtml = '';
+
+			$map_atts = shortcode_atts( array( 'googlemap' => '0' ), $atts );
+
+			if ( $map_atts['googlemap'] == '1'  ) {
+				$options = get_option('contact');
+				if ( strlen( trim( $options['googlemapsapi_key'] ) ) == 0 ) {
+					// Fallback to open maps if Google key not provided
+					$map_atts['googlemap'] = '0';
+				}
 			}
+
+			if ( $map_atts['googlemap'] == '1' ) {
+				$retHtml = $this->bl_show_google_cluster_map( $atts ); 
+			} else {
+				$retHtml = $this->bl_show_open_street_cluster_map ( $atts );
+			}
+			return $retHtml;
+		}
+
+
+
+		public function bl_show_google_cluster_map( $atts ) {
+			$map_atts = shortcode_atts( array(
+						'lat' => '',
+						'lng' => '',
+						'title' => '',
+						'pin' => '',
+						'zoom' => 10,
+						'latlngfile' => '',
+						'minheight' => '250px',
+						'minwidth' => '100%',
+				), $atts );
+
+			// Grab the settings directly from the database
+			$options = get_option('contact');
+
+			$width = $map_atts['minwidth'];
+			$height = $map_atts['minheight'];
+
+			$lat = $map_atts['lat'];
+			$lng = $map_atts['lng'];
+
+			if ( ( $lat == '') || ( $lng == '') ) {
+				$lat = $options['lat'];
+				$lng = $options['lng'];
+			}
+
+			$zoom = $map_atts['zoom'];
+			$pin_icon = $map_atts['pin'];
+			$title = $map_atts['title'];
+			$pin_colour = "#000000";
+
+			$lat_lng_file = $map_atts['latlngfile'];
+
+			$lat_lng_pairs = array();
+
+			// Read and de-serialize the lat lng pairs
+			if ( file_exists( $lat_lng_file ) ) {
+				$pairs = file_get_contents($lat_lng_file);
+//fb_log('pairs:'.print_r($pairs,true));
+				$lat_lng_pairs = json_decode($pairs,true);
+				if (!is_array($lat_lng_pairs)) {
+						// something went wrong, initialize to empty array
+						$lat_lng_pairs = array();
+				}
+			}
+//fb_log('latlng:'.print_r($lat_lng_pairs,true));
+
+			$json_latlng = json_encode($lat_lng_pairs);
+//fb_log('json encode:'.$json_latlng);
+			// Enqueue the map clusterer plugin
+			$clusterpath = get_option('siteurl') . '/wp-content/plugins/' . basename(dirname(__FILE__)) . '/google/markerclusterer/';
+			$jspath = $clusterpath . 'markerclusterer.js';
+			wp_enqueue_script('markerclusterer', $jspath, array('jquery'), null, false);
+			
+			// And enqueue the Google Maps Api - key must be saved in the settings
+			wp_enqueue_script('googlemapsapi', 'https://maps.google.com/maps/api/js?key=' . $options['googlemapsapi_key'], array('jquery'), null, false);
+
+			$pin_colour = $options['pin_colour'];
+
+
+			if ( !startsWith($pin_colour, '#') ) {
+				$pin_colour = '#'.$pin_colour;
+			}
+			if ( !preg_match('/^#[a-f0-9]{6}$/i', $pin_colour) ) {
+				$pin_colour = '#000000';
+			}
+			if ( (trim( $zoom ) == '') || ( $zoom == 0 ) ) {
+				$zoom = 10;
+			}
+
+			
+			ob_start();
+			$randId = "blmap-".rand();
+			?>
+				<div id="<?php echo($randId); ?>" class="blmap" style="min-height:<?php echo($height); ?>;min-width:<?php echo($width); ?>;"></div>
+			
+				<script type="text/javascript">
+					var $jq = jQuery.noConflict();
+					$jq( document ).ready( function() {
+			
+						function mapInit( mapId, lat, lng, place_title, zoom_level, pin_colour, latlng_pairs, clusterpath ) {
+								// Basic options for a simple Google Map
+								// For more options see: https://developers.google.com/maps/documentation/javascript/reference#MapOptions
+								var mapOptions = {
+										// How zoomed in you want the map to start at (always required)
+										zoom: zoom_level,
+			
+										// The latitude and longitude to center the map (always required)
+										center: new google.maps.LatLng( lat, lng ), 
+								};
+			
+								// Get the HTML DOM element that will contain your map 
+								// We are using a div with id="map" seen below in the <body>
+								var mapElement = document.getElementById( mapId );
+			
+								// Create the Google Map using our element and options defined above
+								var map = new google.maps.Map(mapElement, mapOptions);
+
+								// Let's also add a marker while we're at it
+								var pin = "<?php echo($map_atts['pin']); ?>";
+								if (!pin) {
+									pin = {
+										path: "m 768,896 q 0,106 -75,181 -75,75 -181,75 -106,0 -181,-75 -75,-75 -75,-181 0,-106 75,-181 75,-75 181,-75 106,0 181,75 75,75 75,181 z m 256,0 q 0,-109 -33,-179 L 627,-57 q -16,-33 -47.5,-52 -31.5,-19 -67.5,-19 -36,0 -67.5,19 Q 413,-90 398,-57 L 33,717 Q 0,787 0,896 q 0,212 150,362 150,150 362,150 212,0 362,-150 150,-150 150,-362 z",
+										fillColor: pin_colour,
+										fillOpacity: 1,
+										anchor: new google.maps.Point(0,0),
+										strokeWeight: 0,
+										scale: 0.02,
+										rotation: 180,
+									}
+								}
+
+								// Create an array of alphabetical characters used to label the markers.
+								//var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+								var locations = jQuery.parseJSON(latlng_pairs);
+
+								// Add some markers to the map.
+								// Note: The code uses the JavaScript Array.prototype.map() method to
+								// create an array of markers based on a given "locations" array.
+								// The map() method here has nothing to do with the Google Maps API.
+								var markers = locations.map(function(location, i) {
+									return new google.maps.Marker({
+										position: location,
+										icon: pin
+									});
+								});
+
+								 // Add a marker clusterer to manage the markers.
+								 var markerCluster = new MarkerClusterer(map, markers, {imagePath: clusterpath + '/images/m'} );
+						}
+			
+						mapInit("<?php echo($randId); ?>", <?php echo($lat); ?>, <?php echo($lng); ?>, "<?php echo($title); ?>", <?php echo($zoom); ?>, "<?php echo($pin_colour); ?>", '<?php echo($json_latlng); ?>', "<?php echo($clusterpath); ?>");
+					});
+				</script>
+			<?php
+			
+			$retHtml = ob_get_contents();
+			ob_end_clean();
+			
+			return $retHtml;
+		}
+
+
+		public function bl_show_open_street_cluster_map( $atts ) {
+			$map_atts = shortcode_atts( array(
+						'lat' => '',
+						'lng' => '',
+						'title' => '',
+						'pin' => '',
+						'zoom' => 11,
+						'latlngfile' => '',
+						'minheight' => '250px',
+						'minwidth' => '100%',
+				), $atts );
+
+			// Grab the settings directly from the database
+			$options = get_option('contact');
+
+			$width = $map_atts['minwidth'];
+			$height = $map_atts['minheight'];
+
+			$lat = $map_atts['lat'];
+			$lng = $map_atts['lng'];
+
+			if ( ( $lat == '') || ( $lng == '') ) {
+				$lat = $options['lat'];
+				$lng = $options['lng'];
+			}
+
+			$zoom = $map_atts['zoom'];
+			$pin_icon = $map_atts['pin'];
+			$title = $map_atts['title'];
+			$pin_colour = "#000000";
+
+			$lat_lng_file = $map_atts['latlngfile'];
+
+			$lat_lng_pairs = array();
+//fb_log('to read:'.$lat_lng_file);
+			// Read and de-serialize the lat lng pairs
+			if ( file_exists( $lat_lng_file ) ) {
+				$pairs = file_get_contents($lat_lng_file);
+//fb_log('pairs:'.print_r($pairs,true));
+				$lat_lng_pairs = json_decode($pairs,true);
+				if (!is_array($lat_lng_pairs)) {
+						// something went wrong, initialize to empty array
+						$lat_lng_pairs = array();
+				}
+			}
+//fb_log('latlng:'.print_r($lat_lng_pairs,true));
+
+			$json_latlng = json_encode($lat_lng_pairs);
+//fb_log('json encode:'.$json_latlng);
+			// Enqueue the map clusterer plugin
+			$clusterpath = get_option('siteurl') . '/wp-content/plugins/' . basename(dirname(__FILE__)) . '/leaflet/markercluster/';
+			$jspath = $clusterpath . 'leaflet.markercluster.js';
+			wp_enqueue_script('markercluster', $jspath, array('jquery'), null, false);
+			
+			$csspath = $clusterpath . 'MarkerCluster.css';
+			wp_enqueue_style('markercluster_css', $csspath);
+			$csspath = $clusterpath . 'MarkerCluster.Default.css';
+			wp_enqueue_style('markercluster_def_css', $csspath);
+			$pin_colour = $options['pin_colour'];
+
+
+			if ( !startsWith($pin_colour, '#') ) {
+				$pin_colour = '#'.$pin_colour;
+			}
+			if ( !preg_match('/^#[a-f0-9]{6}$/i', $pin_colour) ) {
+				$pin_colour = '#000000';
+			}
+			if ( (trim( $zoom ) == '') || ( $zoom == 0 ) ) {
+				$zoom = 10;
+			}
+
+			ob_start();
+			$randId = "map-".rand();
+			?>
+				<div id="<?php echo($randId); ?>" class="blmap" style="min-height:<?php echo($height); ?>;min-width:<?php echo($width); ?>;"></div>
+			
+				<script type="text/javascript">
+					var $jq = jQuery.noConflict();
+					$jq( document ).ready( function() {
+			
+		
+						function hexToRGB(h) {
+							let r = 0, g = 0, b = 0;
+		
+							// 3 digits
+							if (h.length == 4) {
+								r = "0x" + h[1] + h[1];
+								g = "0x" + h[2] + h[2];
+								b = "0x" + h[3] + h[3];
+		
+							// 6 digits
+							} else if (h.length == 7) {
+								r = "0x" + h[1] + h[2];
+								g = "0x" + h[3] + h[4];
+								b = "0x" + h[5] + h[6];
+							}
+		
+							return "rgb("+ +r + "," + +g + "," + +b + ")";
+						}
+		
+						function mapInit( mapId, lat, lng, place_title, zoom_level, pin_color, latlng_pairs, clusterpath ) {
+							var rgb_color = hexToRGB(pin_color);
+							var svg_pin = '<svg version="1.1" id="mapmarker" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 365 560" enable-background="new 0 0 365 560" xml:space="preserve"><g><path class="fill_color" style="fill:' + rgb_color + ';" d="M182.9,551.7c0,0.1,0.2,0.3,0.2,0.3S358.3,283,358.3,194.6c0-130.1-88.8-186.7-175.4-186.9 C96.3,7.9,7.5,64.5,7.5,194.6c0,88.4,175.3,357.4,175.3,357.4S182.9,551.7,182.9,551.7z M122.2,187.2c0-33.6,27.2-60.8,60.8-60.8 c33.6,0,60.8,27.2,60.8,60.8S216.5,248,182.9,248C149.4,248,122.2,220.8,122.2,187.2z"/></g></svg>';
+							var pin_url = encodeURI('data:image/svg+xml,' + svg_pin);
+
+							var map = L.map('<?php echo($randId); ?>').setView([lat,lng], zoom_level);
+		
+							L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+								attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+								}).addTo(map);
+
+							// add Wikimedia style to map.
+							L.tileLayer.provider('Wikimedia').addTo(map);
+		
+							var customIcon = L.icon({
+								iconUrl: pin_url,
+								iconSize:[20,20]
+								});
+
+							var locations = jQuery.parseJSON(latlng_pairs);
+							var markers = L.markerClusterGroup();
+		
+							for (var i = 0; i < locations.length; i++) {
+								var a = locations[i];
+								var marker = L.marker(new L.LatLng(a.lat, a.lng), {icon: customIcon});
+								markers.addLayer(marker);
+							}
+
+							map.addLayer(markers);
+						}
+			
+						mapInit("<?php echo($randId); ?>", <?php echo($lat); ?>, <?php echo($lng); ?>, "<?php echo($title); ?>", <?php echo($zoom); ?>, "<?php echo($pin_colour); ?>", '<?php echo($json_latlng); ?>', "<?php echo($clusterpath); ?>");
+					});
+				</script>
+			<?php
+			
+			$retHtml = ob_get_contents();
+			ob_end_clean();
+
+			
+			return $retHtml;
+		}
+
+
 	}
 }
 

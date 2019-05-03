@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2019.03
+Stable tag: 2019.06
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -117,9 +117,33 @@ pin
 zoom - defaults to 15 if not saved
 addr_number - defaults to lat/lng 1, but you may also use lat/lng2
 googlemap - defaults to 0 (OpenStreetMap). Will display a Google Map if set to 1 and a Google Maps JS key is aved in the settings.
+minheight - set a min height for the map. Default = 250px
+minwidth - set the min width of the map. Default = 100%
 
 
 
+= How do I display a cluster map? =
+
+Use the shortcode [blcontact-show-cluster-map]
+
+lat - center latitude value
+lng - center the saved longitude value
+title
+pin
+zoom - defaults to 10 if not specified
+googlemap - defaults to 0 (OpenStreetMap). Will display a Google Map if set to 1 and a Google Maps JS key is aved in the settings.
+minheight - set a min height for the map. Default = 250px
+minwidth - set the min width of the map. Default = 100%
+latlngfile - specify the path to a text file containing the lat/lng values to be mapped.
+
+Format is:
+
+[
+	{"lat":-33.43631744,"lng":151.43966675},
+	{"lat":-33.43179703,"lng":151.44288635},
+	{"lat":-33.43848038,"lng":151.43057251},
+	{"lat":-33.43848038,"lng":151.43057251}
+]
 
 
 
@@ -184,3 +208,6 @@ googlemap - defaults to 0 (OpenStreetMap). Will display a Google Map if set to 1
 2019.04 - 11 Apr 2019 - Various minor bug fixes.
 
 2019.05 - 18 Apr 2019 - Re-introduced support for Google Maps. Use [blcontact-show-map googlemap="1"] shortcode. You must also provide a Google Maps JS key.
+
+2019.06 - 3 May 2019	- Added cluster maps. User [blcontact-show-cluster-map].
+											- [blcontact-show-cluster-map] and [blcontact-show-cluster-map] now support the minheight="y" and minwidth="x" parameters to set minimum pixel or pecentage dimensions.
