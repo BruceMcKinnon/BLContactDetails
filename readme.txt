@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2019.06
+Stable tag: 2019.07
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -211,3 +211,6 @@ Format is:
 
 2019.06 - 3 May 2019	- Added cluster maps. User [blcontact-show-cluster-map].
 											- [blcontact-show-cluster-map] and [blcontact-show-cluster-map] now support the minheight="y" and minwidth="x" parameters to set minimum pixel or pecentage dimensions.
+
+2019.07 - 10 May 2019 - Added support for the nolink parameter when using 'email' and 'email2'.
+

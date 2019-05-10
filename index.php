@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2019.06
+Version: 2019.07
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -46,7 +46,9 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2019.05 - 18 Apr 2019 - Re-introduced support for Google Maps. Use [blcontact-show-map googlemap="1"] shortcode. You must also provide a Google Maps JS key.
 2019.06 - 3 May 2019	- Added cluster maps. User [blcontact-show-cluster-map].
 											- [blcontact-show-cluster-map] and [blcontact-show-cluster-map] now support the minheight="y" and minwidth="x" parameters to set minimum pixel or pecentage dimensions.
-*/
+2019.07 - 10 May 2019 - Added support for the nolink parameter when using 'email' and 'email2'.
+
+											*/
 
 
 
@@ -571,13 +573,15 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 				case 'email':
 				case 'email2':
-					if ($atts['displaytext'] == '') {
-						$atts['displaytext'] = $value;
-					}
-					if ($atts['innercontent']) {
-						$value = '<a class="'.$atts['class'].'" href="mailto:'.$value.'"><span itemprop="email">'.$atts['before'].$atts['displaytext'].$atts['after'].'</span></a>';
-					} else {
-						$value = '<a class="'.$atts['class'].'" href="mailto:'.$value.'"><span itemprop="email">'.$atts['displaytext'].'</span></a>';
+					if ( $atts['nolink'] != true ) {
+						if ($atts['displaytext'] == '') {
+							$atts['displaytext'] = $value;
+						}
+						if ($atts['innercontent']) {
+							$value = '<a class="'.$atts['class'].'" href="mailto:'.$value.'"><span itemprop="email">'.$atts['before'].$atts['displaytext'].$atts['after'].'</span></a>';
+						} else {
+							$value = '<a class="'.$atts['class'].'" href="mailto:'.$value.'"><span itemprop="email">'.$atts['displaytext'].'</span></a>';
+						}
 					}
 					break;
 
