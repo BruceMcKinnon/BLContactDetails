@@ -52,7 +52,15 @@
 					<?php $saved_time = '0';
 					if ( array_key_exists( $key, $this->options ) ) { 
 							$saved_time = $this->options[$key];
-					} ?>
+					} else {
+						if ( (!$this->endsWith($key,'sat')) && (!$this->endsWith($key,'sun')) )	{
+							if ( $this->startsWith($key,'open') ) {
+								$saved_time = "900";
+							} else {
+								$saved_time = "1700";
+							}
+						}
+					}?>
 					<select id="<?php esc_attr_e( $this->tag . '[' . $key . ']' ); ?>" name="<?php esc_attr_e( $this->tag . '[' .$key . ']' ); ?>">
 						<?php $value = 0;
 						while ($value <= 2330) {

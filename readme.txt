@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2019.07
+Stable tag: 2019.08
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -213,4 +213,7 @@ Format is:
 											- [blcontact-show-cluster-map] and [blcontact-show-cluster-map] now support the minheight="y" and minwidth="x" parameters to set minimum pixel or pecentage dimensions.
 
 2019.07 - 10 May 2019 - Added support for the nolink parameter when using 'email' and 'email2'.
+
+2019.08 - 16 May 2019 - Linked address fields had incorrectly formatted target values. Was missing the opening doble-quote.
+											- Open/Close hours now default to 9am and 5pm for Mon-Fri, closed Sat/Sun
 

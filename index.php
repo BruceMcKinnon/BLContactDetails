@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2019.07
+Version: 2019.08
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -47,8 +47,9 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2019.06 - 3 May 2019	- Added cluster maps. User [blcontact-show-cluster-map].
 											- [blcontact-show-cluster-map] and [blcontact-show-cluster-map] now support the minheight="y" and minwidth="x" parameters to set minimum pixel or pecentage dimensions.
 2019.07 - 10 May 2019 - Added support for the nolink parameter when using 'email' and 'email2'.
-
-											*/
+2019.08 - 16 May 2019 - Linked address fields had incorrectly formatted target values. Was missing the opening doble-quote.
+											- Open/Close hours now default to 9am and 5pm for Mon-Fri, closed Sat/Sun
+*/
 
 
 
@@ -518,9 +519,9 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 						if (!$atts['nolink']) {
 							if ($atts['innercontent']) {
-								$value = '<a href="http://maps.google.com/?q='.urlencode($url_value).'" target=_blank">'.$atts['before'].$value.$atts['after'].'</a>';
+								$value = '<a href="http://maps.google.com/?q='.urlencode($url_value).'" target="_blank">'.$atts['before'].$value.$atts['after'].'</a>';
 							} else {
-								$value = '<a href="http://maps.google.com/?q='.urlencode($url_value).'" target=_blank">'.$value.'</a>';
+								$value = '<a href="http://maps.google.com/?q='.urlencode($url_value).'" target="_blank">'.$value.'</a>';
 							}
 						} else {
 							if ($atts['innercontent']) {
@@ -845,7 +846,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			$title = $map_atts['title'];
 			$pin_colour = "#000000";
 
-			if (startsWith($pin_icon,'#')) {
+			if ($this->startsWith($pin_icon,'#')) {
 				// pin_icon is specifying the colour, not an image.
 				$pin_colour = $pin_icon;
 				$pin_icon = '';
@@ -870,7 +871,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 					$pin_colour = $options['pin_colour'];
 				}
 		
-				if ( !startsWith($pin_colour, '#') ) {
+				if ( !$this->startsWith($pin_colour, '#') ) {
 					$pin_colour = '#'.$pin_colour;
 				}
 				if ( !preg_match('/^#[a-f0-9]{6}$/i', $pin_colour) ) {
@@ -975,7 +976,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			$title = $map_atts['title'];
 			$pin_colour = "#000000";
 
-			if (startsWith($pin_icon,'#')) {
+			if ($this->startsWith($pin_icon,'#')) {
 				// pin_icon is specifying the colour, not an image.
 				$pin_colour = $pin_icon;
 				$pin_icon = '';
@@ -1158,7 +1159,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			$pin_colour = $options['pin_colour'];
 
 
-			if ( !startsWith($pin_colour, '#') ) {
+			if ( !$this->startsWith($pin_colour, '#') ) {
 				$pin_colour = '#'.$pin_colour;
 			}
 			if ( !preg_match('/^#[a-f0-9]{6}$/i', $pin_colour) ) {
@@ -1303,7 +1304,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			$pin_colour = $options['pin_colour'];
 
 
-			if ( !startsWith($pin_colour, '#') ) {
+			if ( !$this->startsWith($pin_colour, '#') ) {
 				$pin_colour = '#'.$pin_colour;
 			}
 			if ( !preg_match('/^#[a-f0-9]{6}$/i', $pin_colour) ) {
