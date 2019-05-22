@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2019.08
+Version: 2019.09
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -49,6 +49,8 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2019.07 - 10 May 2019 - Added support for the nolink parameter when using 'email' and 'email2'.
 2019.08 - 16 May 2019 - Linked address fields had incorrectly formatted target values. Was missing the opening doble-quote.
 											- Open/Close hours now default to 9am and 5pm for Mon-Fri, closed Sat/Sun
+2019.09 - 22 May 2019	- Added misc1 and misc2 options - allows misc URLs to be stored
+
 */
 
 
@@ -119,6 +121,8 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				'linkedin' => __( 'LinkedIn', 'contact' ),
 				'pinterest' => __( 'Pinterest', 'contact' ),
 				'youtube' => __( 'YouTube', 'contact' ),
+				'misc1' => __( 'Misc #1', 'contact' ),
+				'misc2' => __( 'Misc #2', 'contact' ),
 				'googleanalytics_code' => __( 'Google Analytics Tracking Code', 'contact' ),
 				'googlemapsapi_key' => __( 'Google Maps JS API key', 'contact' ),
 				'eu_cookie_popup' => array(

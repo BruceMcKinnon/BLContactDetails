@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2019.08
+Stable tag: 2019.09
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -78,6 +78,7 @@ Current available contact fields are:
 	pinterest
 	youtube
 	hours
+	misc1, misc2
 
 
 
@@ -216,4 +217,7 @@ Format is:
 
 2019.08 - 16 May 2019 - Linked address fields had incorrectly formatted target values. Was missing the opening doble-quote.
 											- Open/Close hours now default to 9am and 5pm for Mon-Fri, closed Sat/Sun
+
+2019.09 - 22 May 2019	- Added misc1 and misc2 options. Allows misc URLs to be stored
+
 
