@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2019.09
+Stable tag: 2019.10
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -26,6 +26,8 @@ Provides a variety of SEO and general website support features:
 * - Display an embedded location map, using the lat/lng values you provide. Supports Leaflet/OpenStreetMaps maps.
 
 * - Provides a popup box to provide EU privacy law compliance.
+
+* - Provides FAQPage schema.org markup for FAQ lists.
 
 
 
@@ -145,6 +147,28 @@ Format is:
 	{"lat":-33.43848038,"lng":151.43057251},
 	{"lat":-33.43848038,"lng":151.43057251}
 ]
+
+
+
+= How do I include SEO markup for a FAQ list? =
+
+Use the shortcode [blcontact-faq]
+
+For example:
+
+[blcontact-faq wrapper_class="li.faq” question_class=“a.question” answer_class="div.answer”]
+<ul>
+	<li class=“faq”>
+		<a class=“question”>Is this my question?</a>
+		<div class=“answer”>Yes, it is.</div>
+	</li>
+	<li class=“faq”>
+		<a class=“question”>Is this another question?</a>
+		<div class=“answer”>Yes, it is another uestion.</div>
+	</li>
+</ul>
+[/blcontact-faq]
+
 
 
 

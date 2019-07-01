@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2019.09
+Version: 2019.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -50,6 +50,7 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2019.08 - 16 May 2019 - Linked address fields had incorrectly formatted target values. Was missing the opening doble-quote.
 											- Open/Close hours now default to 9am and 5pm for Mon-Fri, closed Sat/Sun
 2019.09 - 22 May 2019	- Added misc1 and misc2 options - allows misc URLs to be stored
+2019.10 - 1 Jul 2019	- Added the [blcontact-faq] shortcode.
 
 */
 
@@ -77,6 +78,10 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				add_shortcode( 'blcontact-json-ld', array( &$this, 'insert_json_ld' ) );	// Insert JSON-LD structured data onto the page
 				add_shortcode( 'blcontact-show-map', array( &$this, 'bl_map_router' ) );	// Insert a Leaflet/OpenStreetMap onto the page
 				add_shortcode( 'blcontact-show-cluster-map', array( &$this, 'bl_cluster_map_router' ) );	// Insert a Leaflet/OpenStreetMap onto the page
+
+				add_shortcode( 'blcontact-faq', array( &$this, 'bl_seo_faq' ) );	// Insert SEO FAQ markup - https://schema.org/FAQPage
+
+
 
 				add_filter( 'contact_detail', array( &$this, 'bl_build'), 1 );
 
@@ -249,40 +254,46 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 		// Display the EU cookie warning message
 		public function bl_insert_cookie_warning() {
-			// First, get the URL to the privacy policy page
-			$priv_page_id = get_option('wp_page_for_privacy_policy');
-			if ($priv_page_id > 0) {
-				$priv_page_url = get_permalink($priv_page_id);
-			} else {
-				$priv_page_url = "#";
-			}
 
-			$auto_accept = false;
-			
-			if ( $this->value( 'eu_cookie_popup' ) != 'checked' ) { 
-				$auto_accept = true;
+			$ga_code = $this->value('googleanalytics_code');
+
+			if ( strlen($ga_code) > 0 ) {
+
+				// First, get the URL to the privacy policy page
+				$priv_page_id = get_option('wp_page_for_privacy_policy');
+				if ($priv_page_id > 0) {
+					$priv_page_url = get_permalink($priv_page_id);
+				} else {
+					$priv_page_url = "#";
+				}
+
+				$auto_accept = false;
+				
+				if ( $this->value( 'eu_cookie_popup' ) != 'checked' ) { 
+					$auto_accept = true;
+					?>
+					<script>initialiseGoogleAnalytics();</script>
+					<?php
+				} else {
 				?>
-				<script>initialiseGoogleAnalytics();</script>
+				<script type="text/javascript">
+					var $jq = jQuery.noConflict();
+					$jq(document).euCookieLawPopup().init({
+						cookiePolicyUrl : '<?php echo($priv_page_url); ?>',
+						popupPosition : 'bottom',
+						popupTitle : '',
+						popupText : 'By continuing to use the site, you agree to the use of cookies. Click the Learn more button for our Privacy Policy',
+						buttonContinueTitle : 'Continue',
+						buttonLearnmoreTitle : 'Learn more',
+						buttonLearnmoreOpenInNewWindow : true,
+						agreementExpiresInDays : 365,
+						autoAcceptCookiePolicy : <?php echo( bool2str($auto_accept) ); ?>,
+						htmlMarkup : false,
+						colorStyle : 'blue'
+					});
+				</script>
 				<?php
-			} else {
-			?>
-			<script type="text/javascript">
-				var $jq = jQuery.noConflict();
-				$jq(document).euCookieLawPopup().init({
-					cookiePolicyUrl : '<?php echo($priv_page_url); ?>',
-					popupPosition : 'bottom',
-					popupTitle : '',
-					popupText : 'By continuing to use the site, you agree to the use of cookies. Click the Learn more button for our Privacy Policy',
-					buttonContinueTitle : 'Continue',
-					buttonLearnmoreTitle : 'Learn more',
-					buttonLearnmoreOpenInNewWindow : true,
-					agreementExpiresInDays : 365,
-					autoAcceptCookiePolicy : <?php echo( bool2str($auto_accept) ); ?>,
-					htmlMarkup : false,
-					colorStyle : 'blue'
-				});
-			</script>
-			<?php
+				}
 			}
 		}
 
@@ -293,34 +304,37 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			
 			$ga_code = $this->value('googleanalytics_code');
 
-			$ga_script = "<!-- Global site tag (gtag.js) - Google Analytics -->
-			<script async src=\"https://www.googletagmanager.com/gtag/js?id=" . $ga_code . "\"></script>
-			<script>
-				window.dataLayer = window.dataLayer || [];
-				function gtag(){dataLayer.push(arguments);}
-			</script>";
-			$ga_script .= "<script>function initialiseGoogleAnalytics() { gtag('js', new Date()); gtag('config', '" . $ga_code . "', {'anonymize_ip': true} ); console.log('initialiseGoogleAnalytics initied'); }</script>";
+			if ( strlen($ga_code) > 0 ) {
 
-			echo ($ga_script);
-			?>
+				$ga_script = "<!-- Global site tag (gtag.js) - Google Analytics -->
+				<script async src=\"https://www.googletagmanager.com/gtag/js?id=" . $ga_code . "\"></script>
+				<script>
+					window.dataLayer = window.dataLayer || [];
+					function gtag(){dataLayer.push(arguments);}
+				</script>";
+				$ga_script .= "<script>function initialiseGoogleAnalytics() { gtag('js', new Date()); gtag('config', '" . $ga_code . "', {'anonymize_ip': true} ); console.log('initialiseGoogleAnalytics initied'); }</script>";
 
-			<script type="text/javascript">
-			// Subscribe for the cookie consent events
-			var $jq = jQuery.noConflict();
-			if ( $jq(document).euCookieLawPopup().alreadyAccepted() ) {
-				// User clicked on enabling cookies. Now it’s safe to call the init functions.
-				initialiseGoogleAnalytics();
-			}
+				echo ($ga_script);
+				?>
 
-			$jq(document).bind("user_cookie_consent_changed", function(event, object) {
-				const userConsentGiven = $jq(object).attr('consent');
-				if (userConsentGiven) {
+				<script type="text/javascript">
+				// Subscribe for the cookie consent events
+				var $jq = jQuery.noConflict();
+				if ( $jq(document).euCookieLawPopup().alreadyAccepted() ) {
 					// User clicked on enabling cookies. Now it’s safe to call the init functions.
 					initialiseGoogleAnalytics();
 				}
-			});
-			</script>
-		<?php
+
+				$jq(document).bind("user_cookie_consent_changed", function(event, object) {
+					const userConsentGiven = $jq(object).attr('consent');
+					if (userConsentGiven) {
+						// User clicked on enabling cookies. Now it’s safe to call the init functions.
+						initialiseGoogleAnalytics();
+					}
+				});
+				</script>
+			<?php
+			}
 		}
 
 		//
@@ -1388,6 +1402,113 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 			
 			return $retHtml;
+		}
+
+
+		function bl_seo_faq( $atts, $content = null) {
+			$origContent = $content;
+
+			$attribs = shortcode_atts( array(
+				'question_class' => '',
+				'answer_class' => '',
+				'wrapper_class' => '',
+			), $atts );
+
+			$wrapperDiv = 'div';
+			$wrapperClass = $attribs['wrapper_class'];
+			$idx = stripos($attribs['wrapper_class'],".");
+			if ($idx) {
+				$wrapperDiv = substr( $attribs['wrapper_class'], 0, $idx );
+				$wrapperClass = substr( $attribs['wrapper_class'], ($idx+1), strlen($attribs['wrapper_class'])-($idx+1) );
+			}
+
+			$questionDiv = 'div';
+			$questionClass = $attribs['question_class'];
+			$idx = stripos($attribs['question_class'],".");
+			if ($idx) {
+				$questionDiv = substr( $attribs['question_class'], 0, $idx );
+				$questionClass = substr( $attribs['question_class'], ($idx+1), strlen($attribs['question_class'])-($idx+1) );
+			}
+
+//fb_log($questionDiv."|".$questionClass);
+
+			$answerDiv = 'div';
+			$answerClass = $attribs['answer_class'];
+			$idx = stripos($attribs['answer_class'],".");
+			if ($idx) {
+				$answerDiv = substr( $attribs['answer_class'], 0, $idx );
+				$answerClass = substr( $attribs['answer_class'], ($idx+1), strlen($attribs['answer_class'])-($idx+1) );
+			}
+
+//fb_log($answerDiv."|".$answerClass);
+
+			if ($this->startsWith($content,'</p>')) {
+				$content = substr($content,4,strlen($content)-4);
+			}
+			if ($this->endsWith($content,'<p>')) {
+				$content = substr($content,0,strlen($content)-3);
+			}
+//fb_log($content);
+
+			if ( strlen($content) > 0 ) {
+				$doc = new DOMDocument();
+				@$doc->loadHTML($content);
+
+				// questions and answers
+				$questions = array();
+				$answers = array();
+
+				// Get the questions
+				$xpath = new DOMXpath($doc);
+				$query = '//'.$questionDiv.'[@class="' . $questionClass . '"]';
+//fb_log($query);
+				$wrappers = $xpath->query($query);
+
+				foreach($wrappers as $wrapper) {
+					array_push($questions,$wrapper->textContent);
+				}
+
+				// Get the answers
+				$xpath = new DOMXpath($doc);
+				$query = '//'.$answerDiv.'[@class="' . $answerClass . '"]';
+				//fb_log($query);
+				$wrappers = $xpath->query($query);
+
+				foreach($wrappers as $wrapper) {
+					array_push($answers,$wrapper->textContent);
+				}
+			}
+
+			$q_count = count($questions);
+			$a_count = count($answers);
+
+			if ($q_count == $a_count) {
+				// We've got matching lists of questions and answers, so now construct the JSON-LD
+				$retHtml = '<script type="application/ld+json"> {
+					"@context": "https://schema.org",
+					"@type": "FAQPage",
+					"mainEntity": [';
+
+					for ($idx = 0; $idx < $q_count; $idx++) {
+						$retHtml .= '{
+							"@type": "Question",
+							"name": "' . htmlentities( $questions[$idx] ) . '",
+							"acceptedAnswer": {
+								"@type": "Answer",
+								"text": "' . htmlentities( $answers[$idx] ) . '"
+							}
+						},';
+					}
+					if ( $this->endsWith($retHtml, ',') ) {
+						$retHtml = substr($retHtml, 0, (strlen($retHtml)-1)) ;
+					}
+
+				$retHtml .= ']} </script>';
+			}
+
+
+			// Make sure you return the SEO markup nd the original content
+			return $retHtml.$origContent;
 		}
 
 
