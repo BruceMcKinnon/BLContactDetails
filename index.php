@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2019.10
+Version: 2019.11
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -51,6 +51,8 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 											- Open/Close hours now default to 9am and 5pm for Mon-Fri, closed Sat/Sun
 2019.09 - 22 May 2019	- Added misc1 and misc2 options - allows misc URLs to be stored
 2019.10 - 1 Jul 2019	- Added the [blcontact-faq] shortcode.
+2019.11 - 1 Jul 2019	- Added cleanString() to clear non-ASCII characters from SEO markup.
+											- Apply shortcodes to FAQ content.
 
 */
 
@@ -1404,15 +1406,105 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			return $retHtml;
 		}
 
+ 		/**
+    * Returns an string clean of UTF8 characters. It will convert them to a similar ASCII character
+    * www.unexpectedit.com 
+    */
+		function cleanString($text) {
+			// 1) convert á ô => a o
+			$text = preg_replace("/[áàâãªä]/u","a",$text);
+			$text = preg_replace("/[ÁÀÂÃÄ]/u","A",$text);
+			$text = preg_replace("/[ÍÌÎÏ]/u","I",$text);
+			$text = preg_replace("/[íìîï]/u","i",$text);
+			$text = preg_replace("/[éèêë]/u","e",$text);
+			$text = preg_replace("/[ÉÈÊË]/u","E",$text);
+			$text = preg_replace("/[óòôõºö]/u","o",$text);
+			$text = preg_replace("/[ÓÒÔÕÖ]/u","O",$text);
+			$text = preg_replace("/[úùûü]/u","u",$text);
+			$text = preg_replace("/[ÚÙÛÜ]/u","U",$text);
+			$text = preg_replace("/[’‘‹›‚]/u","'",$text);
+			$text = preg_replace("/[“”«»„]/u",'"',$text);
+			$text = str_replace("–","-",$text);
+			$text = str_replace(" "," ",$text);
+			$text = str_replace("ç","c",$text);
+			$text = str_replace("Ç","C",$text);
+			$text = str_replace("ñ","n",$text);
+			$text = str_replace("Ñ","N",$text);
+	 
+			//2) Translation CP1252. &ndash; => -
+			$trans = get_html_translation_table(HTML_ENTITIES); 
+			$trans[chr(130)] = '&sbquo;';    // Single Low-9 Quotation Mark 
+			$trans[chr(131)] = '&fnof;';    // Latin Small Letter F With Hook 
+			$trans[chr(132)] = '&bdquo;';    // Double Low-9 Quotation Mark 
+			$trans[chr(133)] = '&hellip;';    // Horizontal Ellipsis 
+			$trans[chr(134)] = '&dagger;';    // Dagger 
+			$trans[chr(135)] = '&Dagger;';    // Double Dagger 
+			$trans[chr(136)] = '&circ;';    // Modifier Letter Circumflex Accent 
+			$trans[chr(137)] = '&permil;';    // Per Mille Sign 
+			$trans[chr(138)] = '&Scaron;';    // Latin Capital Letter S With Caron 
+			$trans[chr(139)] = '&lsaquo;';    // Single Left-Pointing Angle Quotation Mark 
+			$trans[chr(140)] = '&OElig;';    // Latin Capital Ligature OE 
+			$trans[chr(145)] = '&lsquo;';    // Left Single Quotation Mark 
+			$trans[chr(146)] = '&rsquo;';    // Right Single Quotation Mark 
+			$trans[chr(147)] = '&ldquo;';    // Left Double Quotation Mark 
+			$trans[chr(148)] = '&rdquo;';    // Right Double Quotation Mark 
+			$trans[chr(149)] = '&bull;';    // Bullet 
+			$trans[chr(150)] = '&ndash;';    // En Dash 
+			$trans[chr(151)] = '&mdash;';    // Em Dash 
+			$trans[chr(152)] = '&tilde;';    // Small Tilde 
+			$trans[chr(153)] = '&trade;';    // Trade Mark Sign 
+			$trans[chr(154)] = '&scaron;';    // Latin Small Letter S With Caron 
+			$trans[chr(155)] = '&rsaquo;';    // Single Right-Pointing Angle Quotation Mark 
+			$trans[chr(156)] = '&oelig;';    // Latin Small Ligature OE 
+			$trans[chr(159)] = '&Yuml;';    // Latin Capital Letter Y With Diaeresis 
+			$trans['euro'] = '&euro;';    // euro currency symbol 
+			ksort($trans); 
+			 
+			foreach ($trans as $k => $v) {
+					$text = str_replace($v, $k, $text);
+			}
+	 
+			// 3) remove <p>, <br/> ...
+			//$text = strip_tags($text); 
+			 
+			// 4) &amp; => & &quot; => '
+			//$text = html_entity_decode($text);
+			 
+			// 5) remove Windows-1252 symbols like "TradeMark", "Euro"...
+			$text = preg_replace('/[^(\x20-\x7F)]*/','', $text); 
+			 
+			$targets=array('\r\n','\n','\r','\t');
+			$results=array(" "," "," ","");
+			$text = str_replace($targets,$results,$text);
+	 
+			//XML compatible
+			/*
+			$text = str_replace("&", "and", $text);
+			$text = str_replace("<", ".", $text);
+			$text = str_replace(">", ".", $text);
+			$text = str_replace("\\", "-", $text);
+			$text = str_replace("/", "-", $text);
+			*/
+			 
+			return ($text);
+		} 
+
 
 		function bl_seo_faq( $atts, $content = null) {
+
+			// Apply any shortcodes in the content
+			$content = apply_filters('the_content', $content);
+
 			$origContent = $content;
+
+			$content = $this->cleanString($content);
 
 			$attribs = shortcode_atts( array(
 				'question_class' => '',
 				'answer_class' => '',
 				'wrapper_class' => '',
 			), $atts );
+
 
 			$wrapperDiv = 'div';
 			$wrapperClass = $attribs['wrapper_class'];
@@ -1465,7 +1557,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				$wrappers = $xpath->query($query);
 
 				foreach($wrappers as $wrapper) {
-					array_push($questions,$wrapper->textContent);
+					array_push($questions,$wrapper->nodeValue);
 				}
 
 				// Get the answers
@@ -1475,7 +1567,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				$wrappers = $xpath->query($query);
 
 				foreach($wrappers as $wrapper) {
-					array_push($answers,$wrapper->textContent);
+					array_push($answers,$wrapper->nodeValue);
 				}
 			}
 
@@ -1505,7 +1597,6 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 				$retHtml .= ']} </script>';
 			}
-
 
 			// Make sure you return the SEO markup nd the original content
 			return $retHtml.$origContent;
