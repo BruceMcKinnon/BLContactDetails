@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2019.11
+Version: 2019.12
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -53,6 +53,7 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2019.10 - 1 Jul 2019	- Added the [blcontact-faq] shortcode.
 2019.11 - 1 Jul 2019	- Added cleanString() to clear non-ASCII characters from SEO markup.
 											- Apply shortcodes to FAQ content.
+2019.12 - 14 Aug 2019 - bl_build() - Fixed an issue with trading hours, where setting nolink=false was not correctly compacting the trading hours display.
 
 */
 
@@ -632,7 +633,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 								$meta_content .= '<meta itemprop="openingHours" content="' . $times[$idx][1] . ' ' . formatHours($times[$idx][2]) . '-' . formatHours($times[$idx][3]) . '"/>';
 						}
 
-						if (!$atts['nolink']) {
+						if (($atts['nolink'] == false) || ($atts['nolink'] == 'false')) {
 							// Now sort according to open and close times
 							usort($times,"cmp_times");
 
@@ -669,7 +670,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 						for ($idx = 0; $idx < count($compact_times); $idx++) {
 							$value .= $para_tag . $dowMap[$compact_times[$idx][0]-1];
-							if (!$atts['nolink']) {
+							if (($atts['nolink'] == false) || ($atts['nolink'] == 'false')) {
 								if ($compact_times[$idx][0] != $compact_times[$idx][1]) {
 									$value .= ' - ' . $dowMap[$compact_times[$idx][1]-1];
 								}
