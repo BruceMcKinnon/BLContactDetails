@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2019.12
+Version: 2019.13
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -54,7 +54,8 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2019.11 - 1 Jul 2019	- Added cleanString() to clear non-ASCII characters from SEO markup.
 											- Apply shortcodes to FAQ content.
 2019.12 - 14 Aug 2019 - bl_build() - Fixed an issue with trading hours, where setting nolink=false was not correctly compacting the trading hours display.
-
+2019.13 - 16 Aug 2019 - bl_build() - Added the 'standardformatting' option. When true, commas are added between address components. When false, spaces are used. Defaults to false.
+											- bl_build() - When displaying just the street, town, state, postcode as individual items, do not follow with a space.
 */
 
 
@@ -431,6 +432,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				'class' => '',
 				'displaytext' => '',
 				'nolink' => false,
+				'standardformatting' => false,
 			), $args );
 
 			if ( ($atts['type'] != 'hours') && ($atts['type'] != 'url') ) {
@@ -510,6 +512,11 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 							$url_value = $value;
 						}
 
+						$spacer = ' ';
+						if ($atts['standardformatting'] == true) {
+							$spacer = ', ';
+						}
+
 						if ($atts['type'] == 'address2') {
 							$url_value .= ' ' . $this->value( 'town2' ) . ' ' . $this->value( 'state2' ) . ' ' . $this->value( 'postcode2' );							
 						} elseif ($atts['type'] == 'address') {
@@ -523,19 +530,19 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 						$url_value = str_replace( PHP_EOL, '', $url_value );
 
 						if ($atts['type'] == 'address2') {
-							$value = '<span itemprop="streetAddress">'.$value.'</span> ';
-							$value .= '<span itemprop="addressLocality">'.$this->value( 'town2' ).'</span> ';
-							$value .= '<span itemprop="addressRegion">'.$this->value( 'state2' ).'</span> ';
+							$value = '<span itemprop="streetAddress">'.$value.'</span>'.$spacer;
+							$value .= '<span itemprop="addressLocality">'.$this->value( 'town2' ).'</span>'.$spacer;
+							$value .= '<span itemprop="addressRegion">'.$this->value( 'state2' ).'</span>'.$spacer;
 							$value .= '<span itemprop="postalCode">'.$this->value( 'postcode2' ).'</span>';
 						} elseif ($atts['type'] == 'address') {
-							$value = '<span itemprop="streetAddress">'.$value.'</span> ';
-							$value .= '<span itemprop="addressLocality">'.$this->value( 'town' ).'</span> ';
-							$value .= '<span itemprop="addressRegion">'.$this->value( 'state' ).'</span> ';
+							$value = '<span itemprop="streetAddress">'.$value.'</span>'.$spacer;
+							$value .= '<span itemprop="addressLocality">'.$this->value( 'town' ).'</span>'.$spacer;
+							$value .= '<span itemprop="addressRegion">'.$this->value( 'state' ).'</span>'.$spacer;
 							$value .= '<span itemprop="postalCode">'.$this->value( 'postcode' ).'</span>';
 						}
 
 						if ( ($atts['type'] == 'street') || ($atts['type'] == 'street2') ) {
-							$value = '<span itemprop="streetAddress">'.$value.'</span> ';
+							$value = '<span itemprop="streetAddress">'.$value.'</span>'.$spacer;
 						}
 
 						if (!$atts['nolink']) {
@@ -558,9 +565,9 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 				case 'town':
 				case 'town2':
-					$value = '<span itemprop="addressLocality">'.$this->value( 'town' ).'</span> ';
+					$value = '<span itemprop="addressLocality">'.$this->value( 'town' ).'</span>';
 					if ($atts['type'] == 'town2') {
-						$value = '<span itemprop="addressLocality">'.$this->value( 'town2' ).'</span> ';
+						$value = '<span itemprop="addressLocality">'.$this->value( 'town2' ).'</span>';
 					}
 					$value = '<span itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">'.$value.'</span>';
 						if (strlen($atts['class']) > 0) {
@@ -570,9 +577,9 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 					case 'state':
 					case 'state2':	
-						$value = '<span itemprop="addressRegion">'.$this->value( 'state' ).'</span> ';
+						$value = '<span itemprop="addressRegion">'.$this->value( 'state' ).'</span>';
 						if ($atts['type'] == 'state2') {
-							$value = '<span itemprop="addressRegion">'.$this->value( 'state2' ).'</span> ';
+							$value = '<span itemprop="addressRegion">'.$this->value( 'state2' ).'</span>';
 						}
 						$value = '<span itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">'.$value.'</span>';
 						if (strlen($atts['class']) > 0) {
@@ -582,9 +589,9 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 					case 'postcode':
 					case 'postcode2':
-						$value = '<span itemprop="postalCode">'.$this->value( 'postcode' ).'</span> ';
+						$value = '<span itemprop="postalCode">'.$this->value( 'postcode' ).'</span>';
 						if ($atts['type'] == 'state2') {
-							$value = '<span itemprop="postalCode">'.$this->value( 'postcode2' ).'</span> ';
+							$value = '<span itemprop="postalCode">'.$this->value( 'postcode2' ).'</span>';
 						}	
 						$value = '<span itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">'.$value.'</span>';
 						if (strlen($atts['class']) > 0) {
@@ -721,9 +728,10 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				'class' => '',
 				'displaytext' => '',
 				'nolink' => false,
+				'standardformatting' => false,
 			), $args );
 
-			$retHtml = contact_detail( $atts['type'], false, false, false, false, $atts['class'], $atts['displaytext'], $atts['nolink'] );
+			$retHtml = contact_detail( $atts['type'], false, false, false, false, $atts['class'], $atts['displaytext'], $atts['nolink'], $atts['standardformatting'] );
 			return $retHtml;
 		}
 
@@ -1651,7 +1659,7 @@ function cmp_days($a, $b) {
 $contactDetails = new BLContactDetails();
 
 if ( isset( $contactDetails ) ) {
-	function contact_detail( $t = false, $b = '', $a = '', $i = false, $e = false, $c = '', $d = '', $n = false ){
+	function contact_detail( $t = false, $b = '', $a = '', $i = false, $e = false, $c = '', $d = '', $n = false, $f = false ){
 		$retHtml = apply_filters( 'contact_detail', array(
 			'type' => $t,
 			'before' => $b,
@@ -1661,6 +1669,7 @@ if ( isset( $contactDetails ) ) {
 			'class' => $c,
 			'displaytext' => $d,
 			'nolink' => $n,
+			'standardformatting' => $f,
 		) );
 		return $retHtml;
 	}

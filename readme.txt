@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2019.12
+Stable tag: 2019.13
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -103,24 +103,11 @@ The fifth parameter passed to 'contact_detail()' determines whether the value is
 The above code will fetch the phone number stored and wrap the response in bold tags.
 
 
+= How do you display the street and town with regular comma delimiting
 
+Use the ‘standardformatting’ option:
 
-= How do I use a social media URL in my own link?
-
-Easy! For example:
-
-<a href="[blcontact type='instagram' echo='true' nolink='true']" target="_blank”>@my_instagram</a>
-
-
-
-
-= How do I display compacted trading hours?
-
-Set the ’nolink’ option to false. For example:
-
-[blcontact type="hours" nolink="false"]
-
-The will group together days which have the same trading hours. If you set ’nolink’ to true, each days trading hours are display individually.
+[blcontact type="street" standardformatting=1] [blcontact type="town"]
 
 
 
@@ -184,7 +171,7 @@ For example:
 	</li>
 	<li class=“faq”>
 		<a class=“question”>Is this another question?</a>
-		<div class=“answer”>Yes, it is another question.</div>
+		<div class=“answer”>Yes, it is another uestion.</div>
 	</li>
 </ul>
 [/blcontact-faq]
@@ -267,9 +254,11 @@ For example:
 2019.10 - 1 Jul 2019	- Added the [blcontact-faq] shortcode.
 
 2019.11 - 1 Jul 2019	- Added cleanString() to clear non-ASCII characters from SEO markup.
-			- Apply shortcodes to FAQ content.
+											- Apply shortcodes to FAQ content.
 
-2019.12 - 14 Aug 2019 - bl_build() - Fixed an issue with trading hours, where setting nolink=false was not correctly compacting the trading hours display.
+2019.12 - 14 Aug 2019 - Fixed an issue with trading hours, where setting nolink=false was not correctly compacting the trading hours display.
 
+2019.13 - 16 Aug 2019 - Added the 'standardformatting' option. When true, commas are added between address components. When false, spaces are used. Defaults to false.
+											- When displaying just the street, town, state, postcode as individual items, do not follow with a space.
 
 
