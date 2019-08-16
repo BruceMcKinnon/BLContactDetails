@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2019.13
+Stable tag: 2019.14
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -129,6 +129,7 @@ addr_number - defaults to lat/lng 1, but you may also use lat/lng2
 googlemap - defaults to 0 (OpenStreetMap). Will display a Google Map if set to 1 and a Google Maps JS key is aved in the settings.
 minheight - set a min height for the map. Default = 250px
 minwidth - set the min width of the map. Default = 100%
+layerprovider - set a Leaflet style layer. Defaults to 'Wikimedia'.
 
 
 

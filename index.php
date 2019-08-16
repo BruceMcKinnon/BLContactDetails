@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2019.13
+Version: 2019.14
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -56,6 +56,8 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2019.12 - 14 Aug 2019 - bl_build() - Fixed an issue with trading hours, where setting nolink=false was not correctly compacting the trading hours display.
 2019.13 - 16 Aug 2019 - bl_build() - Added the 'standardformatting' option. When true, commas are added between address components. When false, spaces are used. Defaults to false.
 											- bl_build() - When displaying just the street, town, state, postcode as individual items, do not follow with a space.
+2019.14 - 17 Aug 2019 - blcontact_show_map. Added the 'layerprovider' option for setting a Leaflet style layer. Defaults to 'Wikimedia'.
+
 */
 
 
@@ -993,6 +995,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 						'addr_number' => 1,
 						'minheight' => '250px',
 						'minwidth' => '100%',
+						'layerprovider' => 'Wikimedia',
 			), $atts );
 			
 			$width = $map_atts['minwidth'];
@@ -1004,6 +1007,8 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			$pin_icon = $map_atts['pin'];
 			$title = $map_atts['title'];
 			$pin_colour = "#000000";
+
+			$layer_provider = $map_atts['layerprovider'];
 
 			if ($this->startsWith($pin_icon,'#')) {
 				// pin_icon is specifying the colour, not an image.
@@ -1070,7 +1075,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 							return "rgb("+ +r + "," + +g + "," + +b + ")";
 						}
 		
-						function mapInit( mapId, lat, lng, place_title, zoom_level, pin_color ) {
+						function mapInit( mapId, lat, lng, place_title, zoom_level, pin_color, layer_provider ) {
 							var rgb_color = hexToRGB(pin_color);
 							var svg_pin = '<svg version="1.1" id="mapmarker" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 365 560" enable-background="new 0 0 365 560" xml:space="preserve"><g><path class="fill_color" style="fill:' + rgb_color + ';" d="M182.9,551.7c0,0.1,0.2,0.3,0.2,0.3S358.3,283,358.3,194.6c0-130.1-88.8-186.7-175.4-186.9 C96.3,7.9,7.5,64.5,7.5,194.6c0,88.4,175.3,357.4,175.3,357.4S182.9,551.7,182.9,551.7z M122.2,187.2c0-33.6,27.2-60.8,60.8-60.8 c33.6,0,60.8,27.2,60.8,60.8S216.5,248,182.9,248C149.4,248,122.2,220.8,122.2,187.2z"/></g></svg>';
 							var pin_url = encodeURI('data:image/svg+xml,' + svg_pin);
@@ -1082,7 +1087,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 								}).addTo(map);
 							
 							// add Wikimedia style to map.
-							L.tileLayer.provider('Wikimedia').addTo(map);
+							L.tileLayer.provider(layer_provider).addTo(map);
 
 							var customIcon = L.icon({
 								iconUrl: pin_url,
@@ -1092,7 +1097,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 							L.marker([lat,lng], {icon: customIcon}).addTo(map);
 						}
 			
-						mapInit("<?php echo($randId); ?>", <?php echo($lat); ?>, <?php echo($lng); ?>, "<?php echo($title); ?>", <?php echo($zoom); ?>, "<?php echo($pin_colour); ?>");
+						mapInit("<?php echo($randId); ?>", <?php echo($lat); ?>, <?php echo($lng); ?>, "<?php echo($title); ?>", <?php echo($zoom); ?>, "<?php echo($pin_colour); ?>", "<?php echo ($layer_provider); ?>");
 					});
 				</script>
 			<?php
