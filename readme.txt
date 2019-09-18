@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2019.14
+Stable tag: 2019.15
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -130,7 +130,7 @@ googlemap - defaults to 0 (OpenStreetMap). Will display a Google Map if set to 1
 minheight - set a min height for the map. Default = 250px
 minwidth - set the min width of the map. Default = 100%
 layerprovider - set a Leaflet style layer. Defaults to 'Wikimedia'.
-
+multi_locations - set to 1 to display marks at both address lat/lng values. Defaults to 0. Supported on OpenStreetMap only.
 
 
 = How do I display a cluster map? =
@@ -261,5 +261,9 @@ For example:
 
 2019.13 - 16 Aug 2019 - Added the 'standardformatting' option. When true, commas are added between address components. When false, spaces are used. Defaults to false.
 											- When displaying just the street, town, state, postcode as individual items, do not follow with a space.
+
+2019.14 - 17 Aug 2019 - blcontact_show_map. Added the 'layerprovider' option for setting a Leaflet style layer. Defaults to 'Wikimedia'.
+
+2019.15 - 18 Sep 2019	- blcontact_show_map. Added the 'multi_locations' option for OpenStreetMaps. When set to 1, allows markers for both addresses to be displayed.
 
 

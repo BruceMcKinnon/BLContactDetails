@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2019.14
+Version: 2019.15
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -57,7 +57,7 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2019.13 - 16 Aug 2019 - bl_build() - Added the 'standardformatting' option. When true, commas are added between address components. When false, spaces are used. Defaults to false.
 											- bl_build() - When displaying just the street, town, state, postcode as individual items, do not follow with a space.
 2019.14 - 17 Aug 2019 - blcontact_show_map. Added the 'layerprovider' option for setting a Leaflet style layer. Defaults to 'Wikimedia'.
-
+2019.15 - 18 Sep 2019	- blcontact_show_map. Added the 'multi_locations' option for OpenStreetMaps. When set to 1, allows markers for both addresses to be displayed.
 */
 
 
@@ -996,6 +996,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 						'minheight' => '250px',
 						'minwidth' => '100%',
 						'layerprovider' => 'Wikimedia',
+						'multi_locations' => 0,
 			), $atts );
 			
 			$width = $map_atts['minwidth'];
@@ -1007,6 +1008,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			$pin_icon = $map_atts['pin'];
 			$title = $map_atts['title'];
 			$pin_colour = "#000000";
+			$multi_locations = $map_atts['multi_locations'];
 
 			$layer_provider = $map_atts['layerprovider'];
 
@@ -1021,15 +1023,18 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				$options = get_option('contact');
 		
 				if ( $map_atts['addr_number'] == 2 ) {
-					$lat = $options['lat2'];
-					$lng = $options['lng2'];
+					$locations = array($options['lat2'], $options['lng2']);
 					$zoom = $options['zoom2'];	
 					$pin_colour = $options['pin_colour2'];
 				} else {
-					$lat = $options['lat'];
-					$lng = $options['lng'];
+					$locations = array($options['lat'], $options['lng']);
 					$zoom = $options['zoom'];
 					$pin_colour = $options['pin_colour'];
+				}
+
+
+				if ($multi_locations > 0) {
+					$locations = array($options['lat'],  $options['lng'], $options['lat2'], $options['lng2']);
 				}
 
 				if ($zoom == '') {
@@ -1075,12 +1080,12 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 							return "rgb("+ +r + "," + +g + "," + +b + ")";
 						}
 		
-						function mapInit( mapId, lat, lng, place_title, zoom_level, pin_color, layer_provider ) {
+						function mapInit( mapId, locations, place_title, zoom_level, pin_color, layer_provider ) {
 							var rgb_color = hexToRGB(pin_color);
 							var svg_pin = '<svg version="1.1" id="mapmarker" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 365 560" enable-background="new 0 0 365 560" xml:space="preserve"><g><path class="fill_color" style="fill:' + rgb_color + ';" d="M182.9,551.7c0,0.1,0.2,0.3,0.2,0.3S358.3,283,358.3,194.6c0-130.1-88.8-186.7-175.4-186.9 C96.3,7.9,7.5,64.5,7.5,194.6c0,88.4,175.3,357.4,175.3,357.4S182.9,551.7,182.9,551.7z M122.2,187.2c0-33.6,27.2-60.8,60.8-60.8 c33.6,0,60.8,27.2,60.8,60.8S216.5,248,182.9,248C149.4,248,122.2,220.8,122.2,187.2z"/></g></svg>';
 							var pin_url = encodeURI('data:image/svg+xml,' + svg_pin);
 
-							var map = L.map('<?php echo($randId); ?>').setView([lat,lng], zoom_level);
+							var map = L.map('<?php echo($randId); ?>').setView([locations[0], locations[1]], zoom_level);
 
 							L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 								attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -1094,10 +1099,12 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 								iconSize:[50,50]
 								});
 		
-							L.marker([lat,lng], {icon: customIcon}).addTo(map);
+								for (var i = 0; i < locations.length; i+=2) {
+									marker = new L.marker([locations[i],locations[i+1]],{icon: customIcon}).addTo(map);
+								}
 						}
 			
-						mapInit("<?php echo($randId); ?>", <?php echo($lat); ?>, <?php echo($lng); ?>, "<?php echo($title); ?>", <?php echo($zoom); ?>, "<?php echo($pin_colour); ?>", "<?php echo ($layer_provider); ?>");
+						mapInit("<?php echo($randId); ?>", <?php echo(json_encode($locations)); ?>, "<?php echo($title); ?>", <?php echo($zoom); ?>, "<?php echo($pin_colour); ?>", "<?php echo ($layer_provider); ?>");
 					});
 				</script>
 			<?php
