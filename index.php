@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2019.15
+Version: 2019.16
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -58,6 +58,8 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 											- bl_build() - When displaying just the street, town, state, postcode as individual items, do not follow with a space.
 2019.14 - 17 Aug 2019 - blcontact_show_map. Added the 'layerprovider' option for setting a Leaflet style layer. Defaults to 'Wikimedia'.
 2019.15 - 18 Sep 2019	- blcontact_show_map. Added the 'multi_locations' option for OpenStreetMaps. When set to 1, allows markers for both addresses to be displayed.
+2019.16 - 22 Oct 2019 - Added the 'Custom Script' option to add custom JS at the end of the <head> of each page.
+
 */
 
 
@@ -93,6 +95,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 				add_action( 'wp_enqueue_scripts', array( &$this, 'bl_insert_cookiefy' ) );
 				add_action('wp_footer', array( &$this, 'bl_insert_cookie_warning'), 20 );
+				add_action('wp_head', array( &$this, 'bl_insert_custom_script'), 20 );
 
 				// And enqueue the Leaflet apis
 				add_action( 'wp_enqueue_scripts', array( &$this, 'bl_enqueue_leaflet' ) );
@@ -141,7 +144,11 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 					'input' => 'checkbox'
 				),
 				'seo_business_type' => __( 'Business Type', 'contact' ),
-				
+				'custom_script' => array(
+					'label' => __( 'Custom Script', 'contact' ),
+					'input' => 'textarea'
+				),
+
 				'open_mon' => array(
 					'label' => __( 'Mon Open', 'contact' ),
 					'input' => 'select'
@@ -342,6 +349,18 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			<?php
 			}
 		}
+
+
+		public function bl_insert_custom_script() {
+			if ( !is_admin() ) {
+				$custom_code = $this->value('custom_script');
+				if ( strlen( trim($custom_code) ) > 0 ) {
+					echo ($custom_code);
+				}
+			}
+		}
+
+
 
 		//
 		// Utility functions

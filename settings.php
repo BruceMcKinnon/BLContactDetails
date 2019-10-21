@@ -99,7 +99,7 @@
 				</td>
 			</tr>
 
-			<?php if ($key == 'seo_business_type') {
+			<?php if ($key == 'custom_script') {
 				echo ( '<tr valign="top" class="one-col"><td>&nbsp;</td><td><small><label><a href="https://schema.org/docs/full.html#CE.Organization" target="_blank">Click here for the full list of schema.org Organisations</a></label></small></td></tr>');
 				echo ( '<tr style="clear:both;"><td class="full-width"><hr/><h3>Opening Hours</h3></td></tr>' );
 			}
