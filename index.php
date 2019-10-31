@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2019.16
+Version: 2019.17
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -59,6 +59,7 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2019.14 - 17 Aug 2019 - blcontact_show_map. Added the 'layerprovider' option for setting a Leaflet style layer. Defaults to 'Wikimedia'.
 2019.15 - 18 Sep 2019	- blcontact_show_map. Added the 'multi_locations' option for OpenStreetMaps. When set to 1, allows markers for both addresses to be displayed.
 2019.16 - 22 Oct 2019 - Added the 'Custom Script' option to add custom JS at the end of the <head> of each page.
+2019.17 - 31 Oct 2019 - Added the 'Logo' box to provide a URL to a logo file in the JSON-LD markup.
 
 */
 
@@ -144,6 +145,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 					'input' => 'checkbox'
 				),
 				'seo_business_type' => __( 'Business Type', 'contact' ),
+				'seo_business_image' => __( 'Business Logo URL', 'contact' ),
 				'custom_script' => array(
 					'label' => __( 'Custom Script', 'contact' ),
 					'input' => 'textarea'
@@ -772,6 +774,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				$retHtml .= '},';
 				$retHtml .= '"description": "' . get_bloginfo('description') . '",';
 				$retHtml .= '"name": "' . get_bloginfo('name') . '",';
+				$retHtml .= '"image": ["' . $this->value('seo_business_image') . '"],';
 				$retHtml .= '"telephone": "' . $this->value('phone') . '"';
 				
 				$lat = $this->value('lat');

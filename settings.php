@@ -146,6 +146,7 @@ function bl_contact_class($type) {
 		case 'googlemapsapi_key':
 		case 'misc1':
 		case 'misc2':
+		case 'business_logo_url':
 			$retHtml = 'class="two-col"';
 			break;
 

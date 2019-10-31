@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2019.16
+Stable tag: 2019.17
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
