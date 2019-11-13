@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2019.17
+Stable tag: 2019.18
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -267,4 +267,8 @@ For example:
 2019.15 - 18 Sep 2019	- blcontact_show_map. Added the 'multi_locations' option for OpenStreetMaps. When set to 1, allows markers for both addresses to be displayed.
 
 2019.16 - 22 Oct 2019 - Added the 'Custom Script' option to add custom JS at the end of the <head> of each page.
+
+2019.17 - 31 Oct 2019 - Added the 'Logo' box to provide a URL to a logo file in the JSON-LD markup.
+
+2019.18 - 13 Nov 2019 - Added a span around the Mon-Fri day info for open/close hours.
 

@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2019.17
+Version: 2019.18
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -60,7 +60,7 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2019.15 - 18 Sep 2019	- blcontact_show_map. Added the 'multi_locations' option for OpenStreetMaps. When set to 1, allows markers for both addresses to be displayed.
 2019.16 - 22 Oct 2019 - Added the 'Custom Script' option to add custom JS at the end of the <head> of each page.
 2019.17 - 31 Oct 2019 - Added the 'Logo' box to provide a URL to a logo file in the JSON-LD markup.
-
+2019.18 - 13 Nov 2019 - Added a span around the Mon-Fri day info for open/close hours.
 */
 
 
@@ -699,16 +699,16 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 						}
 
 						for ($idx = 0; $idx < count($compact_times); $idx++) {
-							$value .= $para_tag . $dowMap[$compact_times[$idx][0]-1];
+							$value .= $para_tag . '<span>' . $dowMap[$compact_times[$idx][0]-1];
 							if (($atts['nolink'] == false) || ($atts['nolink'] == 'false')) {
 								if ($compact_times[$idx][0] != $compact_times[$idx][1]) {
-									$value .= ' - ' . $dowMap[$compact_times[$idx][1]-1];
+									$value .= ' - ' . $dowMap[$compact_times[$idx][1]-1] . ': </span>';
 								}
 							}
 
 							$open = date("g:ia", mktime(abs($compact_times[$idx][2] / 100), abs($compact_times[$idx][2] % 100), 0, 1, 1, 2000) );
 							$close = date("g:ia", mktime(abs($compact_times[$idx][3] / 100), abs($compact_times[$idx][3] % 100), 0, 1, 1, 2000) );
-							$value .= ': ' . $open . ' - ' . $close . '</p>';
+							$value .= $open . ' - ' . $close . '</p>';
 						}
 						$value .= $meta_content;
 
