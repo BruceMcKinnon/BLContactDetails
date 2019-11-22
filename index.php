@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2019.18
+Version: 2019.19
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -61,6 +61,7 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2019.16 - 22 Oct 2019 - Added the 'Custom Script' option to add custom JS at the end of the <head> of each page.
 2019.17 - 31 Oct 2019 - Added the 'Logo' box to provide a URL to a logo file in the JSON-LD markup.
 2019.18 - 13 Nov 2019 - Added a span around the Mon-Fri day info for open/close hours.
+2019.19 - 22 Nov 2019 - Added override URLs for Google Maps Places for both addresses.
 */
 
 
@@ -121,6 +122,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				'town' => __( 'City/Town', 'contact' ),
 				'state' => __( 'State', 'contact' ),
 				'postcode' => __( 'Post Code', 'contact' ),
+				'addr1_map_override_url' => __( 'Google Maps URL #1', 'contact' ),
 				'postal' => array(
 					'label' => __( 'Postal', 'contact' ),
 					'input' => 'textarea'
@@ -218,6 +220,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				'town2' => __( 'City/Town #2', 'contact' ),
 				'state2' => __( 'State #2', 'contact' ),
 				'postcode2' => __( 'Post Code #2', 'contact' ),
+				'addr2_map_override_url' => __( 'Google Maps URL #2', 'contact' ),
 				'lat2' => __( 'Latitude #2', 'contact' ),
 				'lng2' => __( 'Longitude #2', 'contact' ),
 				'zoom2' => __( 'Map Zoom #2', 'contact' ),
@@ -541,22 +544,46 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 						}
 
 						if ($atts['type'] == 'address2') {
-							$url_value .= ' ' . $this->value( 'town2' ) . ' ' . $this->value( 'state2' ) . ' ' . $this->value( 'postcode2' );							
+							$url_value_override = trim($this->value( 'addr2_map_override_url' ));
+							if ( $url_value_override == '' ) {
+								$url_value .= ' ' . $this->value( 'town2' ) . ' ' . $this->value( 'state2' ) . ' ' . $this->value( 'postcode2' );							
+							
+								// v2016.05 - Strip line breaks from the URL
+								$url_value = str_replace( '<br />', '', $url_value );
+								$url_value = str_replace( '\n', ' ', $url_value );
+								$url_value = str_replace( '\r', '', $url_value );
+								$url_value = str_replace( PHP_EOL, '', $url_value );
+
+								$url_value = 'http://maps.google.com/?q='.urlencode($url_value);
+							} else {
+								$url_value = $url_value_override;
+							}
 						} elseif ($atts['type'] == 'address') {
-							$url_value .= ' ' . $this->value( 'town' ) . ' ' . $this->value( 'state' ) . ' ' . $this->value( 'postcode' );
+							$url_value_override = trim($this->value( 'addr1_map_override_url' ));
+
+							if ( $url_value_override == '' ) {
+								$url_value .= ' ' . $this->value( 'town' ) . ' ' . $this->value( 'state' ) . ' ' . $this->value( 'postcode' );
+
+								// v2016.05 - Strip line breaks from the URL
+								$url_value = str_replace( '<br />', '', $url_value );
+								$url_value = str_replace( '\n', ' ', $url_value );
+								$url_value = str_replace( '\r', '', $url_value );
+								$url_value = str_replace( PHP_EOL, '', $url_value );
+
+								$url_value = 'http://maps.google.com/?q='.urlencode($url_value);
+							} else {
+								$url_value = $url_value_override;
+							}
 						}
 
-						// v2016.05 - Strip line breaks from the URL
-						$url_value = str_replace( '<br />', '', $url_value );
-						$url_value = str_replace( '\n', ' ', $url_value );
-						$url_value = str_replace( '\r', '', $url_value );
-						$url_value = str_replace( PHP_EOL, '', $url_value );
+
 
 						if ($atts['type'] == 'address2') {
 							$value = '<span itemprop="streetAddress">'.$value.'</span>'.$spacer;
 							$value .= '<span itemprop="addressLocality">'.$this->value( 'town2' ).'</span>'.$spacer;
 							$value .= '<span itemprop="addressRegion">'.$this->value( 'state2' ).'</span>'.$spacer;
 							$value .= '<span itemprop="postalCode">'.$this->value( 'postcode2' ).'</span>';
+
 						} elseif ($atts['type'] == 'address') {
 							$value = '<span itemprop="streetAddress">'.$value.'</span>'.$spacer;
 							$value .= '<span itemprop="addressLocality">'.$this->value( 'town' ).'</span>'.$spacer;
@@ -569,10 +596,11 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 						}
 
 						if (!$atts['nolink']) {
+
 							if ($atts['innercontent']) {
-								$value = '<a href="http://maps.google.com/?q='.urlencode($url_value).'" target="_blank">'.$atts['before'].$value.$atts['after'].'</a>';
+								$value = '<a href="'.$url_value.'" target="_blank">'.$atts['before'].$value.$atts['after'].'</a>';
 							} else {
-								$value = '<a href="http://maps.google.com/?q='.urlencode($url_value).'" target="_blank">'.$value.'</a>';
+								$value = '<a href="'.$url_value.'" target="_blank">'.$value.'</a>';
 							}
 						} else {
 							if ($atts['innercontent']) {

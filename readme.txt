@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2019.18
+Stable tag: 2019.19
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -272,3 +272,4 @@ For example:
 
 2019.18 - 13 Nov 2019 - Added a span around the Mon-Fri day info for open/close hours.
 
+2019.19 - 22 Nov 2019 - Added override URLs for Google Maps Places for both addresses.

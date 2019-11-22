@@ -129,6 +129,7 @@ function bl_contact_class($type) {
 		case 'fax':
 		case 'email':
 		case 'mobile':
+		case 'addr1_map_override_url':
 		case 'pin_colour':
 		case 'abn':
 		case 'facebook':
@@ -141,6 +142,7 @@ function bl_contact_class($type) {
 		case 'fax2':
 		case 'email2':
 		case 'mobile2':
+		case 'addr2_map_override_url':
 		case 'pin_colour2':
 		case 'googleanalytics_code':
 		case 'googlemapsapi_key':
