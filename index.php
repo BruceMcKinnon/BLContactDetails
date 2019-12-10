@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2019.19
+Version: 2019.20
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -62,6 +62,7 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2019.17 - 31 Oct 2019 - Added the 'Logo' box to provide a URL to a logo file in the JSON-LD markup.
 2019.18 - 13 Nov 2019 - Added a span around the Mon-Fri day info for open/close hours.
 2019.19 - 22 Nov 2019 - Added override URLs for Google Maps Places for both addresses.
+2019.20	- 10 Dec 2019 - bl_show_open_street_map() - Fixed error if only the lat/lng and not an addr number being specified.
 */
 
 
@@ -951,19 +952,20 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 					$zoom = $options['zoom'];
 					$pin_colour = $options['pin_colour'];
 				}
-		
-				if ( !$this->startsWith($pin_colour, '#') ) {
-					$pin_colour = '#'.$pin_colour;
-				}
-				if ( !preg_match('/^#[a-f0-9]{6}$/i', $pin_colour) ) {
-					$pin_colour = '#000000';
-				}
-				if ( (trim( $zoom ) == '') || ( $zoom == 0 ) ) {
-					$zoom = 15;
-				}
-		
-				$title = trim($options['address']).', '.trim($options['town']).', '.trim($options['state']).', '.trim($options['postcode']);
 			}
+				
+			if ( !$this->startsWith($pin_colour, '#') ) {
+				$pin_colour = '#'.$pin_colour;
+			}
+			if ( !preg_match('/^#[a-f0-9]{6}$/i', $pin_colour) ) {
+				$pin_colour = '#000000';
+			}
+			if ( (trim( $zoom ) == '') || ( $zoom == 0 ) ) {
+				$zoom = 15;
+			}
+	
+			$title = trim($options['address']).', '.trim($options['town']).', '.trim($options['state']).', '.trim($options['postcode']);
+
 
 			ob_start();
 			$randId = "blmap-".rand();
@@ -1068,10 +1070,12 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				$pin_icon = '';
 			}
 			
+			// Grab the settings directly from the database
+			$options = get_option('contact');
+
+			$locations = array($lat, $lng);
+
 			if ($lat == '' || $lng == '') {
-				// Grab the settings directly from the database
-				$options = get_option('contact');
-		
 				if ( $map_atts['addr_number'] == 2 ) {
 					$locations = array($options['lat2'], $options['lng2']);
 					$zoom = $options['zoom2'];	
@@ -1081,25 +1085,26 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 					$zoom = $options['zoom'];
 					$pin_colour = $options['pin_colour'];
 				}
+			}
 
 
-				if ($multi_locations > 0) {
-					$locations = array($options['lat'],  $options['lng'], $options['lat2'], $options['lng2']);
-				}
+			if ($multi_locations > 0) {
+				$locations = array($options['lat'],  $options['lng'], $options['lat2'], $options['lng2']);
+			}
 
-				if ($zoom == '') {
-					$zoom = '15';
-				}
+			if ($zoom == '') {
+				$zoom = '15';
+			}
+	
+			if ( !$this->startsWith($pin_colour, '#') ) {
+				$pin_colour = '#'.$pin_colour;
+			}
+			if ( !preg_match('/^#[a-f0-9]{6}$/i', $pin_colour) ) {
+				$pin_colour = '#000000';
+			}
+	
+			$title = $options['address'].' '.$options['town'].' '.$options['state'].' '.$options['postcode'];
 		
-				if ( !$this->startsWith($pin_colour, '#') ) {
-					$pin_colour = '#'.$pin_colour;
-				}
-				if ( !preg_match('/^#[a-f0-9]{6}$/i', $pin_colour) ) {
-					$pin_colour = '#000000';
-				}
-		
-				$title = $options['address'].' '.$options['town'].' '.$options['state'].' '.$options['postcode'];
-			} 
 			
 			ob_start();
 			$randId = "map-".rand();
