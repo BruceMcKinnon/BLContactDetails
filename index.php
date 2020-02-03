@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2019.20
+Version: 2020.01
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -63,6 +63,7 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2019.18 - 13 Nov 2019 - Added a span around the Mon-Fri day info for open/close hours.
 2019.19 - 22 Nov 2019 - Added override URLs for Google Maps Places for both addresses.
 2019.20	- 10 Dec 2019 - bl_show_open_street_map() - Fixed error if only the lat/lng and not an addr number being specified.
+2020.01 - 3 Feb 2020  - Fixed a problem with formatting hours.
 */
 
 
@@ -708,13 +709,17 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 									if ($idx == (count($times)-1) ) {
 										$new_row = array($marker_start, $times[$idx][0], $times[$idx][2], $times[$idx][3]);
-										array_push($compact_times, $new_row);	
+
+										if ($compact_times[$idx][0] != $new_row[$idx][0]) {
+											array_push($compact_times, $new_row);	
+										}
 									}
 								}
 							}
 						} else {
 							$compact_times = $times;
 						}
+//fb_log('compacted: '.print_r($compact_times,true));
 
 						// Sort according to Day Of the Week
 						usort($compact_times,"cmp_days");
@@ -732,7 +737,13 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 							if (($atts['nolink'] == false) || ($atts['nolink'] == 'false')) {
 								if ($compact_times[$idx][0] != $compact_times[$idx][1]) {
 									$value .= ' - ' . $dowMap[$compact_times[$idx][1]-1] . ': </span>';
+								} else {
+									// Make sure non-compacted times still format correctly.
+									$value .= ': ';
 								}
+							} else {
+								// Make sure non-compacted times still format correctly.
+								$value .= ': ';
 							}
 
 							$open = date("g:ia", mktime(abs($compact_times[$idx][2] / 100), abs($compact_times[$idx][2] % 100), 0, 1, 1, 2000) );

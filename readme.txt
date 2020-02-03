@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2019.20
+Stable tag: 2020.20
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -108,6 +108,16 @@ The above code will fetch the phone number stored and wrap the response in bold 
 Use the ‘standardformatting’ option:
 
 [blcontact type="street" standardformatting=1] [blcontact type="town"]
+
+
+
+
+= How do you display opening hours?
+
+Compacted list: [blcontact type="hours"]
+
+
+Show each day of the week: [blcontact type="hours" nolink=true]
 
 
 
@@ -275,3 +285,5 @@ For example:
 2019.19 - 22 Nov 2019 - Added override URLs for Google Maps Places for both addresses.
 
 2019.20	- 10 Dec 2019 - bl_show_open_street_map() - Fixed error if only the lat/lng and not an addr number being specified.
+
+2020.01 - 3 Feb 2020  - Fixed a problem with formatting hours.
