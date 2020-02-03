@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2020.01
+Version: 2020.02
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -64,6 +64,8 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2019.19 - 22 Nov 2019 - Added override URLs for Google Maps Places for both addresses.
 2019.20	- 10 Dec 2019 - bl_show_open_street_map() - Fixed error if only the lat/lng and not an addr number being specified.
 2020.01 - 3 Feb 2020  - Fixed a problem with formatting hours.
+2020.02	- 3 Feb 2020  - 'standardformatting' = true now forces super-compact opening hours display.
+											- Added the facility to insert custom SEO meta tags manually. User is responsible for correctly formatting the tags.
 */
 
 
@@ -152,6 +154,10 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				'seo_business_image' => __( 'Business Logo URL', 'contact' ),
 				'custom_script' => array(
 					'label' => __( 'Custom Script', 'contact' ),
+					'input' => 'textarea'
+				),
+				'seo_extra_meta_tags' => array(
+					'label' => __( 'SEO Extra Meta Tags', 'contact' ),
 					'input' => 'textarea'
 				),
 
@@ -686,6 +692,8 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 								unset($times[$idx]);
 							}
 						}
+						$times = array_values($times);
+
 
 						// Create the Microdata markup
 						$meta_content = '';
@@ -693,13 +701,18 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 								$meta_content .= '<meta itemprop="openingHours" content="' . $times[$idx][1] . ' ' . formatHours($times[$idx][2]) . '-' . formatHours($times[$idx][3]) . '"/>';
 						}
 
+
 						if (($atts['nolink'] == false) || ($atts['nolink'] == 'false')) {
-							// Now sort according to open and close times
-							usort($times,"cmp_times");
+							// Now sort according to open and close times to make the days as compatc as is possible.
+							if ( ($atts['standardformatting'] == true) || ($atts['standardformatting'] == true) ) {
+								usort($times,"cmp_times");
+							}
 
 							// Group days of the same open/close times together
 							$compact_times = array();
 							$marker_start = $times[0][0]; $marker_end = -1;
+
+//fb_log('compacted: '.print_r($times,true));
 
 							for ($idx = 1; $idx <= count($times); $idx++) {
 								if ( ( $times[$idx-1][2] != $times[$idx][2] ) || ( $times[$idx-1][3] != $times[$idx][3] ) ) {
@@ -719,7 +732,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 						} else {
 							$compact_times = $times;
 						}
-//fb_log('compacted: '.print_r($compact_times,true));
+
 
 						// Sort according to Day Of the Week
 						usort($compact_times,"cmp_days");
@@ -884,7 +897,9 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				if (strlen($openHours) > 0) {
 					$retHtml .= ',"openingHours" : [ ' . $openHours . ']';
 				}
-
+				if (strlen( $this->value('seo_extra_meta_tags') ) > 0) {
+					$retHtml .= ',' . $this->value('seo_extra_meta_tags');
+				}
 
 			$retHtml .= '}</script>';
 			return $retHtml;

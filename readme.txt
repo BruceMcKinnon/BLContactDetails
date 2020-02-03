@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2020.20
+Stable tag: 2020.02
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -116,8 +116,31 @@ Use the ‘standardformatting’ option:
 
 Compacted list: [blcontact type="hours"]
 
+E.g.,
+Mon - Wed: 10:00am - 5:00pm
+Thu: 10:00am - 7:00pm
+Fri: 10:00am - 5:00pm
+Sun: 10:00am - 3:00pm
+
+
+Super-compacted list: [blcontact type="hours"]
+
+E.g.,
+
+Mon - Fri: 10:00am - 5:00pm
+Thu: 10:00am - 7:00pm
+Sun: 10:00am - 3:00pm
+
 
 Show each day of the week: [blcontact type="hours" nolink=true]
+
+E.g.,
+Mon: 10:00am - 5:00pm
+Tue: 10:00am - 5:00pm
+Wed: 10:00am - 5:00pm
+Thu: 10:00am - 7:00pm
+Fri: 10:00am - 5:00pm
+Sun: 10:00am - 3:00pm
 
 
 
@@ -287,3 +310,7 @@ For example:
 2019.20	- 10 Dec 2019 - bl_show_open_street_map() - Fixed error if only the lat/lng and not an addr number being specified.
 
 2020.01 - 3 Feb 2020  - Fixed a problem with formatting hours.
+
+2020.02	- 3 Feb 2020  - 'standardformatting' = true now forces super-compact opening hours display.
+			- Added the facility to insert custom SEO meta tags manually. User is responsible for correctly formatting the tags.
+

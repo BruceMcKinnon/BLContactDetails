@@ -96,10 +96,10 @@
 						value="<?php if ( array_key_exists( $key, $this->options ) ) { esc_attr_e( $this->options[$key] ); } ?>" />
 
 				<?php } ?>
-				</td>
+				</td
 			</tr>
 
-			<?php if ($key == 'custom_script') {
+			<?php if ($key == 'seo_extra_meta_tags') {
 				echo ( '<tr valign="top" class="one-col"><td>&nbsp;</td><td><small><label><a href="https://schema.org/docs/full.html#CE.Organization" target="_blank">Click here for the full list of schema.org Organisations</a></label></small></td></tr>');
 				echo ( '<tr style="clear:both;"><td class="full-width"><hr/><h3>Opening Hours</h3></td></tr>' );
 			}
