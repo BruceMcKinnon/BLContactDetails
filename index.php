@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2020.02
+Version: 2020.03
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -66,6 +66,8 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2020.01 - 3 Feb 2020  - Fixed a problem with formatting hours.
 2020.02	- 3 Feb 2020  - 'standardformatting' = true now forces super-compact opening hours display.
 											- Added the facility to insert custom SEO meta tags manually. User is responsible for correctly formatting the tags.
+2020.03 - 18 Feb 2020 - Added the rawtext option to return just the plain text. Currently supported for Address and Phone.
+
 */
 
 
@@ -452,6 +454,16 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			return $links;
 		}
 
+		private function intToBool($value) {
+			if (is_int($value)) {
+				if ($value == 0) {
+					$value = false;
+				} else {
+					$value = true;
+				}
+			}
+			return $value;
+		}
 
 		//
 		// Build the content to be returned to the shortcode
@@ -467,7 +479,16 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				'displaytext' => '',
 				'nolink' => false,
 				'standardformatting' => false,
+				'rawtext' => false,
 			), $args );
+		
+
+
+			$atts['rawtext'] = $this->intToBool($atts['rawtext']);
+			$atts['standardformatting'] = $this->intToBool($atts['standardformatting']);
+			$atts['echo'] = $this->intToBool($atts['echo']);
+			$atts['nolink'] = $this->intToBool($atts['nolink']);
+			$atts['innercontent'] = $this->intToBool($atts['innercontent']);
 
 			if ( ($atts['type'] != 'hours') && ($atts['type'] != 'url') ) {
 				$value = $this->value( $atts['type'] );
@@ -509,21 +530,53 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				case 'mobile':
 				case 'mobile2':
 
+					if ($atts['rawtext']) {
+						$value = str_replace(' ' ,'',$value);
+
+					} else {
 						if ( $atts['displaytext'] == '' ) {
 							$atts['displaytext'] = $value;
 						}
 						$value = str_replace(' ' ,'',$value);
-						if ($atts['innercontent']) {
-							$value = '<a class="'.$atts['class'].'" href="tel:'.$value.'"><span itemprop="telephone" content='.$value.'>'.$atts['before'].$atts['displaytext'].$atts['after'].'</span></a>';
-						} else {
-							$value = '<a class="'.$atts['class'].'"href="tel:'.$value.'"><span itemprop="telephone" content='.$value.'>'.$atts['displaytext'].'</span></a>';
+
+						if (!$atts['nolink']) {
+							if ($atts['innercontent']) {
+								$value = '<a class="'.$atts['class'].'" href="tel:'.$value.'"><span itemprop="telephone" content='.$value.'>'.$atts['before'].$atts['displaytext'].$atts['after'].'</span></a>';
+							} else {
+								$value = '<a class="'.$atts['class'].'"href="tel:'.$value.'"><span itemprop="telephone" content='.$value.'>'.$atts['displaytext'].'</span></a>';
+							}
 						}
+					}
 					break;
 
 				case 'address':
 				case 'address2':
 				case 'street':
 				case 'street2':
+
+					$spacer = ' ';
+					if ($atts['standardformatting'] == true) {
+						$spacer = ', ';
+					}
+
+					if ($atts['rawtext']) {
+						if ($atts['type'] == 'address2') {
+							$value .= $spacer;
+							$value .= $this->value( 'town2' ).$spacer;
+							$value .= $this->value( 'state2' ).$spacer;
+							$value .= $this->value( 'postcode2' );
+
+						} elseif ($atts['type'] == 'address') {
+							$value .= $spacer;
+							$value .= $this->value( 'town' ).$spacer;
+							$value .= $this->value( 'state' ).$spacer;
+							$value .= $this->value( 'postcode' );
+						}
+
+					} else {
+
+
+
 						// v2016.04
 						// Note, the address prefix (e.g., 'Unit 1, Level 2, xyx Building') which is not used to 
 						// work out the Google Map location, may be removed by enclosing it in <span> tags
@@ -544,11 +597,6 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 						} else {
 							$url_value = $value;
-						}
-
-						$spacer = ' ';
-						if ($atts['standardformatting'] == true) {
-							$spacer = ', ';
 						}
 
 						if ($atts['type'] == 'address2') {
@@ -620,6 +668,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 						if (strlen($atts['class']) > 0) {
 							$value = '<div class="'.$atts['class'].'">'.$value.'</div>';
 						}
+					}
 					break;
 
 				case 'town':
@@ -1752,7 +1801,7 @@ function cmp_days($a, $b) {
 $contactDetails = new BLContactDetails();
 
 if ( isset( $contactDetails ) ) {
-	function contact_detail( $t = false, $b = '', $a = '', $i = false, $e = false, $c = '', $d = '', $n = false, $f = false ){
+	function contact_detail( $t = false, $b = '', $a = '', $i = false, $e = false, $c = '', $d = '', $n = false, $f = false, $r = false ){
 		$retHtml = apply_filters( 'contact_detail', array(
 			'type' => $t,
 			'before' => $b,
@@ -1763,6 +1812,7 @@ if ( isset( $contactDetails ) ) {
 			'displaytext' => $d,
 			'nolink' => $n,
 			'standardformatting' => $f,
+			'rawtext' => $r,
 		) );
 		return $retHtml;
 	}
