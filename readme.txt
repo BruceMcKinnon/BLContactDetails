@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2020.02
+Stable tag: 2020.04
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -313,4 +313,10 @@ For example:
 
 2020.02	- 3 Feb 2020  - 'standardformatting' = true now forces super-compact opening hours display.
 			- Added the facility to insert custom SEO meta tags manually. User is responsible for correctly formatting the tags.
+
+2020.03 - 18 Feb 2020 - Added the rawtext option to return just the plain text. Currently supported for Address and Phone.
+
+2020.04 - 6 Mar 2020	- Added support for the Extra GA Tracking Codes option. Allows multiple GA or AdWords tracking to be initiated on the page.
+
+
 

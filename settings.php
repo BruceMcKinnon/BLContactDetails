@@ -96,7 +96,7 @@
 						value="<?php if ( array_key_exists( $key, $this->options ) ) { esc_attr_e( $this->options[$key] ); } ?>" />
 
 				<?php } ?>
-				</td
+				</td>
 			</tr>
 
 			<?php if ($key == 'seo_extra_meta_tags') {
@@ -144,30 +144,31 @@ function bl_contact_class($type) {
 		case 'mobile2':
 		case 'addr2_map_override_url':
 		case 'pin_colour2':
-		case 'googleanalytics_code':
-		case 'googlemapsapi_key':
 		case 'misc1':
 		case 'misc2':
 		case 'business_logo_url':
 			$retHtml = 'class="two-col"';
-			break;
+		break;
 
-			case 'town':
-			case 'state':
-			case 'email':
-			case 'postcode':
-			case 'lat':
-			case 'lng':
-			case 'zoom':
-			case 'town2':
-			case 'state2':
-			case 'email2':
-			case 'postcode2':
-			case 'lat2':
-			case 'lng2':
-			case 'zoom2':
+		case 'town':
+		case 'state':
+		case 'email':
+		case 'postcode':
+		case 'lat':
+		case 'lng':
+		case 'zoom':
+		case 'town2':
+		case 'state2':
+		case 'email2':
+		case 'postcode2':
+		case 'lat2':
+		case 'lng2':
+		case 'zoom2':
+		case 'googleanalytics_code':
+		case 'googleanalytics_code_extra':
+		case 'googlemapsapi_key':
 			$retHtml = 'class="three-col"';
-			break;
+		break;
 		
 		case (preg_match('/open_.*/', $type) ? true : false):
 		case (preg_match('/close_.*/', $type) ? true : false):

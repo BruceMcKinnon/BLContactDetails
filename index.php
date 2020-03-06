@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2020.03
+Version: 2020.04
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -67,7 +67,7 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2020.02	- 3 Feb 2020  - 'standardformatting' = true now forces super-compact opening hours display.
 											- Added the facility to insert custom SEO meta tags manually. User is responsible for correctly formatting the tags.
 2020.03 - 18 Feb 2020 - Added the rawtext option to return just the plain text. Currently supported for Address and Phone.
-
+2020.04 - 6 Mar 2020	- Added support for the Extra GA Tracking Codes option. Allows multiple GA or AdWords tracking to be initiated on the page.
 */
 
 
@@ -147,6 +147,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				'misc1' => __( 'Misc #1', 'contact' ),
 				'misc2' => __( 'Misc #2', 'contact' ),
 				'googleanalytics_code' => __( 'Google Analytics Tracking Code', 'contact' ),
+				'googleanalytics_code_extra' => __( 'Extra GA Tracking Codes', 'contact' ),
 				'googlemapsapi_key' => __( 'Google Maps JS API key', 'contact' ),
 				'eu_cookie_popup' => array(
 					'label' => __( 'Enable Cookie Warning Popup', 'contact' ),
@@ -331,6 +332,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 		public function bl_insert_google_analytics() {
 			
 			$ga_code = $this->value('googleanalytics_code');
+			$ga_code_extra = $this->value('googleanalytics_code_extra');
 
 			if ( strlen($ga_code) > 0 ) {
 
@@ -340,7 +342,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 					window.dataLayer = window.dataLayer || [];
 					function gtag(){dataLayer.push(arguments);}
 				</script>";
-				$ga_script .= "<script>function initialiseGoogleAnalytics() { gtag('js', new Date()); gtag('config', '" . $ga_code . "', {'anonymize_ip': true} ); console.log('initialiseGoogleAnalytics initied'); }</script>";
+				$ga_script .= "<script>function initialiseGoogleAnalytics() { gtag('js', new Date()); gtag('config', '" . $ga_code . "', {'anonymize_ip': true} ); console.log('initialiseGoogleAnalytics initied'); ".$ga_code_extra." }</script>";
 
 				echo ($ga_script);
 				?>
