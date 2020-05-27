@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2020.04
+Stable tag: 2020.05
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -101,6 +101,13 @@ The fifth parameter passed to 'contact_detail()' determines whether the value is
 '$phone = contact_detail( 'phone', '<b>', '</b>', '', false );'
 
 The above code will fetch the phone number stored and wrap the response in bold tags.
+
+
+
+= Get the phone number with no linking - just he value stored in the database =
+
+[blcontact type="phone" nolink="1" rawtext="0"]
+
 
 
 = How do you display the street and town with regular comma delimiting
@@ -318,5 +325,7 @@ For example:
 
 2020.04 - 6 Mar 2020	- Added support for the Extra GA Tracking Codes option. Allows multiple GA or AdWords tracking to be initiated on the page.
 
+2020.05 - 27 May 2020 - If using 'phone', 'phone2', 'mobile', 'mobile2', setting nolink with rawtext=0 returns the value stored in the database with no space removal.
+			- Shortcode now passes all of the parameters all the way through.
 
 

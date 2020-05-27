@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2020.04
+Version: 2020.05
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -68,6 +68,9 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 											- Added the facility to insert custom SEO meta tags manually. User is responsible for correctly formatting the tags.
 2020.03 - 18 Feb 2020 - Added the rawtext option to return just the plain text. Currently supported for Address and Phone.
 2020.04 - 6 Mar 2020	- Added support for the Extra GA Tracking Codes option. Allows multiple GA or AdWords tracking to be initiated on the page.
+2020.05 - 27 May 2020 - If using 'phone', 'phone2', 'mobile', 'mobile2', setting nolink with rawtext=0 returns the value stored in the database with no space removal.
+											- Shortcode now passes all of the parameters all the way through.
+
 */
 
 
@@ -485,7 +488,6 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			), $args );
 		
 
-
 			$atts['rawtext'] = $this->intToBool($atts['rawtext']);
 			$atts['standardformatting'] = $this->intToBool($atts['standardformatting']);
 			$atts['echo'] = $this->intToBool($atts['echo']);
@@ -532,7 +534,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				case 'mobile':
 				case 'mobile2':
 
-					if ($atts['rawtext']) {
+					if ( ($atts['rawtext']) || ($atts['rawtext']=='1') ) {
 						$value = str_replace(' ' ,'',$value);
 
 					} else {
@@ -541,7 +543,9 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 						}
 						$value = str_replace(' ' ,'',$value);
 
-						if (!$atts['nolink']) {
+						if ($atts['nolink']) {
+							$value = $atts['displaytext'];
+						} else {
 							if ($atts['innercontent']) {
 								$value = '<a class="'.$atts['class'].'" href="tel:'.$value.'"><span itemprop="telephone" content='.$value.'>'.$atts['before'].$atts['displaytext'].$atts['after'].'</span></a>';
 							} else {
@@ -851,14 +855,19 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 			$atts = shortcode_atts( array(
 				'type' => false,
+				'before' => '',
+				'after' => '',
+				'innercontent' => '',
+				'echo' => false,
 				'include' => false,
 				'class' => '',
 				'displaytext' => '',
 				'nolink' => false,
 				'standardformatting' => false,
+				'rawtext' => false,
 			), $args );
 
-			$retHtml = contact_detail( $atts['type'], false, false, false, false, $atts['class'], $atts['displaytext'], $atts['nolink'], $atts['standardformatting'] );
+			$retHtml = contact_detail( $atts['type'], $atts['before'], $atts['after'], $atts['innercontent'], $atts['echo'], $atts['class'], $atts['displaytext'], $atts['nolink'], $atts['standardformatting'], $atts['rawtext'] );
 			return $retHtml;
 		}
 
