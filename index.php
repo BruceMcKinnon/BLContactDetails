@@ -1,4 +1,4 @@
-<?php
+dev.local/test<?php
 /*
 Plugin Name: BL Contacts
 Plugin URI: https://github.com/BruceMcKinnon/BLContactDetails
@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2020.06
+Version: 2020.07
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -70,8 +70,8 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2020.04 - 6 Mar 2020	- Added support for the Extra GA Tracking Codes option. Allows multiple GA or AdWords tracking to be initiated on the page.
 2020.05 - 27 May 2020 - If using 'phone', 'phone2', 'mobile', 'mobile2', setting nolink with rawtext=0 returns the value stored in the database with no space removal.
 											- Shortcode now passes all of the parameters all the way through.
-2020.06 - 11 Aug 2020 - blcontact-show-map - Now provides the extra_lat_lng parameter. You can provide additional lat/lng pairs, comma separated. multi_locations must = 1 to work.
-
+2020.06 - 11 Aug 2020 - blcontact-show-map - Now provides the extra_lat_lng parameter. You can provide additional lat/lng pairs, comma separated. multi_locations must = 1 to work. NB - OpenStreetMaps only
+2020.07 - 12 Aug 2020 - blcontact-show-map - Added the center_latlng parameter. Allows you extactly position the map center. NB - OpenStreetMaps only
 */
 
 
@@ -1137,6 +1137,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 						'layerprovider' => 'Wikimedia',
 						'multi_locations' => 0,
 						'extra_lat_lng' => '',
+						'center_latlng' => '',
 			), $atts );
 			
 			$width = $map_atts['minwidth'];
@@ -1153,6 +1154,10 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			$extra_lat_lng = $map_atts['extra_lat_lng'];
 
 			$layer_provider = $map_atts['layerprovider'];
+
+			$center_latlng = $map_atts['center_latlng'];
+			$center_lat = 0;
+			$center_lng = 0;
 
 			if ($this->startsWith($pin_icon,'#')) {
 				// pin_icon is specifying the colour, not an image.
@@ -1178,8 +1183,22 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			}
 
 
-			if ($multi_locations > 0) {
+			// Center map position
+			if ( strlen($center_latlng) > 0) {
+				$center_map = explode(',',$center_latlng);
+				
+				if ( count($center_map) == 2 ) {
+					$center_lat = floatval($center_map[0]);
+					$center_lng = floatval($center_map[1]);
+					if ( !( is_float($center_lat) && is_float($center_lat) ) ) {
+						$center_lat = 0;
+						$center_lng = 0;
+					}
+				}
+			}
 
+
+			if ($multi_locations > 0) {
 				$locations = array($options['lat'],  $options['lng'], $options['lat2'], $options['lng2']);
 
 				// Add the additional locations as lat/lng pairs - v2020.06
@@ -1196,7 +1215,6 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 						}
 					}
 				}
-
 			}
 
 
@@ -1244,7 +1262,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 							return "rgb("+ +r + "," + +g + "," + +b + ")";
 						}
 		
-						function mapInit( mapId, locations, place_title, zoom_level, pin_color, layer_provider ) {
+						function mapInit( mapId, locations, place_title, zoom_level, pin_color, layer_provider, center_lat, center_lng ) {
 							var rgb_color = hexToRGB(pin_color);
 							var svg_pin = '<svg version="1.1" id="mapmarker" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 365 560" enable-background="new 0 0 365 560" xml:space="preserve"><g><path class="fill_color" style="fill:' + rgb_color + ';" d="M182.9,551.7c0,0.1,0.2,0.3,0.2,0.3S358.3,283,358.3,194.6c0-130.1-88.8-186.7-175.4-186.9 C96.3,7.9,7.5,64.5,7.5,194.6c0,88.4,175.3,357.4,175.3,357.4S182.9,551.7,182.9,551.7z M122.2,187.2c0-33.6,27.2-60.8,60.8-60.8 c33.6,0,60.8,27.2,60.8,60.8S216.5,248,182.9,248C149.4,248,122.2,220.8,122.2,187.2z"/></g></svg>';
 							var pin_url = encodeURI('data:image/svg+xml,' + svg_pin);
@@ -1261,14 +1279,20 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 							var customIcon = L.icon({
 								iconUrl: pin_url,
 								iconSize:[50,50]
-								});
+							});
 		
-								for (var i = 0; i < locations.length; i+=2) {
-									marker = new L.marker([locations[i],locations[i+1]],{icon: customIcon}).addTo(map);
-								}
+							for (var i = 0; i < locations.length; i+=2) {
+								marker = new L.marker([locations[i],locations[i+1]],{icon: customIcon}).addTo(map);
+							}
+
+
+							// Center map - cannot be positioned at 'Null Island' !!
+							if ( (center_lat != 0) && (center_lng != 0) ) {
+								map.panTo(new L.LatLng(center_lat, center_lng));
+							}
 						}
 			
-						mapInit("<?php echo($randId); ?>", <?php echo(json_encode($locations)); ?>, "<?php echo($title); ?>", <?php echo($zoom); ?>, "<?php echo($pin_colour); ?>", "<?php echo ($layer_provider); ?>");
+						mapInit("<?php echo($randId); ?>", <?php echo(json_encode($locations)); ?>, "<?php echo($title); ?>", <?php echo($zoom); ?>, "<?php echo($pin_colour); ?>", "<?php echo ($layer_provider); ?>", "<?php echo ($center_lat); ?>", "<?php echo ($center_lng); ?>");
 					});
 				</script>
 			<?php

@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2020.05
+Stable tag: 2020.07
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -171,7 +171,9 @@ minheight - set a min height for the map. Default = 250px
 minwidth - set the min width of the map. Default = 100%
 layerprovider - set a Leaflet style layer. Defaults to 'Wikimedia'.
 multi_locations - set to 1 to display marks at both address lat/lng values. Defaults to 0. Supported on OpenStreetMap only.
-extra_lat_lng - a string of lat/lng pairs, comma delimited. multi_locations must be set to 1 to work.
+extra_lat_lng - a string of lat/lng pairs, comma delimited. multi_locations must be set to 1 to work. Supported on OpenStreetMap only.
+center_latlng - a latlng value, comma separated. Supported on OpenStreetMap only.
+
 
 Examples:
 
@@ -179,7 +181,7 @@ Examples:
 
 [blcontact-show-map layerprovider="CartoDB.Voyager"]
 
-[blcontact-show-map layerprovider="CartoDB.Positron" multi_locations="1" extra_lat_lng="-33.5222218,151.3717783,-33.7099455,151.2871902,-33.7068212,151.3004241,-33.7117782,151.1707449"]
+[blcontact-show-map layerprovider="CartoDB.Positron" multi_locations="1" extra_lat_lng="-33.5222218,151.3717783,-33.7099455,151.2871902,-33.7068212,151.3004241,-33.7117782,151.1707449" center_latlng="-33.4394444,149.5555838"]
 
 
 
@@ -340,4 +342,7 @@ For example:
 2020.05 - 27 May 2020 - If using 'phone', 'phone2', 'mobile', 'mobile2', setting nolink with rawtext=0 returns the value stored in the database with no space removal.
 			- Shortcode now passes all of the parameters all the way through.
 
-2020.06 - 11 Aug 2020 - blcontact-show-map - Now provides the extra_lat_lng parameter. You can provide additional lat/lng pairs, comma separated. multi_locations must = 1 to work.
+2020.06 - 11 Aug 2020 - blcontact-show-map - Now provides the extra_lat_lng parameter. You can provide additional lat/lng pairs, comma separated. multi_locations must = 1 to work. NB - OpenStreetMaps only
+
+2020.07 - 12 Aug 2020 - blcontact-show-map - Added the center_latlng parameter. Allows you extactly position the map center. NB - OpenStreetMaps only
+
