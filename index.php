@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2020.05
+Version: 2020.06
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -70,6 +70,7 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2020.04 - 6 Mar 2020	- Added support for the Extra GA Tracking Codes option. Allows multiple GA or AdWords tracking to be initiated on the page.
 2020.05 - 27 May 2020 - If using 'phone', 'phone2', 'mobile', 'mobile2', setting nolink with rawtext=0 returns the value stored in the database with no space removal.
 											- Shortcode now passes all of the parameters all the way through.
+2020.06 - 11 Aug 2020 - blcontact-show-map - Now provides the extra_lat_lng parameter. You can provide additional lat/lng pairs, comma separated. multi_locations must = 1 to work.
 
 */
 
@@ -1135,6 +1136,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 						'minwidth' => '100%',
 						'layerprovider' => 'Wikimedia',
 						'multi_locations' => 0,
+						'extra_lat_lng' => '',
 			), $atts );
 			
 			$width = $map_atts['minwidth'];
@@ -1147,6 +1149,8 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			$title = $map_atts['title'];
 			$pin_colour = "#000000";
 			$multi_locations = $map_atts['multi_locations'];
+
+			$extra_lat_lng = $map_atts['extra_lat_lng'];
 
 			$layer_provider = $map_atts['layerprovider'];
 
@@ -1175,8 +1179,27 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 
 			if ($multi_locations > 0) {
+
 				$locations = array($options['lat'],  $options['lng'], $options['lat2'], $options['lng2']);
+
+				// Add the additional locations as lat/lng pairs - v2020.06
+				if ( strlen($extra_lat_lng) > 0) {
+					$extra_locations = explode(',',$extra_lat_lng);
+					
+					if ( ( count($extra_locations) % 2 ) == 0) {
+						for ($x = 0; $x < count($extra_locations); $x+=2) {
+							$extra_lat = floatval($extra_locations[$x]);
+							$extra_lng = floatval($extra_locations[$x+1]);
+							if ( is_float($extra_lat) && is_float($extra_lng) ) {
+								array_push( $locations, $extra_lat, $extra_lng );
+							}
+						}
+					}
+				}
+
 			}
+
+
 
 			if ($zoom == '') {
 				$zoom = '15';
