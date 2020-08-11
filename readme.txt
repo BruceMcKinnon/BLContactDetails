@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2020.07
+Stable tag: 2020.08
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -345,4 +345,7 @@ For example:
 2020.06 - 11 Aug 2020 - blcontact-show-map - Now provides the extra_lat_lng parameter. You can provide additional lat/lng pairs, comma separated. multi_locations must = 1 to work. NB - OpenStreetMaps only
 
 2020.07 - 12 Aug 2020 - blcontact-show-map - Added the center_latlng parameter. Allows you extactly position the map center. NB - OpenStreetMaps only
+
+2020.08 - 12 Aug 2020 - Corrected errant string inserted before comments of index.php
+
 

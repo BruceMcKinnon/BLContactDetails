@@ -1,4 +1,4 @@
-dev.local/test<?php
+<?php
 /*
 Plugin Name: BL Contacts
 Plugin URI: https://github.com/BruceMcKinnon/BLContactDetails
@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2020.07
+Version: 2020.08
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -72,6 +72,7 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 											- Shortcode now passes all of the parameters all the way through.
 2020.06 - 11 Aug 2020 - blcontact-show-map - Now provides the extra_lat_lng parameter. You can provide additional lat/lng pairs, comma separated. multi_locations must = 1 to work. NB - OpenStreetMaps only
 2020.07 - 12 Aug 2020 - blcontact-show-map - Added the center_latlng parameter. Allows you extactly position the map center. NB - OpenStreetMaps only
+2020.08 - 12 Aug 2020 - Corrected errant string inserted before comments of index.php
 */
 
 
