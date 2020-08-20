@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2020.09
+Stable tag: 2020.10
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -186,7 +186,7 @@ Examples:
 
 [blcontact-show-map geojson_file="/dist/assets/cas-service-area.json"]
 
-
+(in this example, cas-service-area.json sits in the {root_url}/wp-content/themes/{my_theme}/dist/assets folder).
 
 
 
@@ -353,5 +353,6 @@ For example:
 
 2020.09 - 20 Aug 2020 - blcontact-show-map - Added the geojson_file parameter. Allows you display a custom overlay on the map. The overaly is a GEO.JSON file (https://geojson.io/), and must be placed relative to either the website root or theme directory. NB - OpenStreetMaps only.
 
+2020.10 - 21 Aug 2020 - blcontact-show-map - Minor styling improvements to the map layer defined by the geojson_file - NB - OpenStreetMaps only.
 
 

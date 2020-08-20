@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2020.09
+Version: 2020.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -74,6 +74,7 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2020.07 - 12 Aug 2020 - blcontact-show-map - Added the center_latlng parameter. Allows you extactly position the map center. NB - OpenStreetMaps only
 2020.08 - 12 Aug 2020 - Corrected errant string inserted before comments of index.php
 2020.09 - 20 Aug 2020 - blcontact-show-map - Added the geojson_file parameter. Allows you display a custom overlay on the map. The overaly is a GEO.JSON file (https://geojson.io/), and must be placed relative to either the website root or theme directory. NB - OpenStreetMaps only.
+2020.10 - 21 Aug 2020 - blcontact-show-map - Minor styling improvements to the map layer defined by the geojson_file - NB - OpenStreetMaps only.
 
 
 */
@@ -1300,21 +1301,12 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 							L.tileLayer.provider(layer_provider).addTo(map);
 
 			
-console.log('geojson:'+geo_json_file);
-							// add a GEO JSON later to the map
-							//if (geo_json_layer != '') {
-								//L.geoJSON(geo_json_layer).addTo(map);
-							//}
+							console.log('geojson:'+geo_json_file);
 
-
-							var myStyle = { color:'#000', fillColor:'#000', fillOpacity:2, weight:1, clickable:false};
-
+							var myStyle = { color:pin_color, fillColor:pin_color, fillOpacity:0.2, weight:2, clickable:false};
 
 							var geojsonLayer = new L.GeoJSON.AJAX(geo_json_file, {style: myStyle});  
-
 							geojsonLayer.addTo(map);
-
-
 
 							var customIcon = L.icon({
 								iconUrl: pin_url,
