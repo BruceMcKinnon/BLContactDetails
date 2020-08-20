@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2020.08
+Version: 2020.09
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -73,6 +73,9 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2020.06 - 11 Aug 2020 - blcontact-show-map - Now provides the extra_lat_lng parameter. You can provide additional lat/lng pairs, comma separated. multi_locations must = 1 to work. NB - OpenStreetMaps only
 2020.07 - 12 Aug 2020 - blcontact-show-map - Added the center_latlng parameter. Allows you extactly position the map center. NB - OpenStreetMaps only
 2020.08 - 12 Aug 2020 - Corrected errant string inserted before comments of index.php
+2020.09 - 20 Aug 2020 - blcontact-show-map - Added the geojson_file parameter. Allows you display a custom overlay on the map. The overaly is a GEO.JSON file (https://geojson.io/), and must be placed relative to either the website root or theme directory. NB - OpenStreetMaps only.
+
+
 */
 
 
