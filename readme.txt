@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2020.08
+Stable tag: 2020.09
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -173,6 +173,7 @@ layerprovider - set a Leaflet style layer. Defaults to 'Wikimedia'.
 multi_locations - set to 1 to display marks at both address lat/lng values. Defaults to 0. Supported on OpenStreetMap only.
 extra_lat_lng - a string of lat/lng pairs, comma delimited. multi_locations must be set to 1 to work. Supported on OpenStreetMap only.
 center_latlng - a latlng value, comma separated. Supported on OpenStreetMap only.
+geojson_file - an overlay file (geo.json format - you can create your own at https://geojson.io). Supported on OpenStreetMap only.
 
 
 Examples:
@@ -182,6 +183,8 @@ Examples:
 [blcontact-show-map layerprovider="CartoDB.Voyager"]
 
 [blcontact-show-map layerprovider="CartoDB.Positron" multi_locations="1" extra_lat_lng="-33.5222218,151.3717783,-33.7099455,151.2871902,-33.7068212,151.3004241,-33.7117782,151.1707449" center_latlng="-33.4394444,149.5555838"]
+
+[blcontact-show-map geojson_file="/dist/assets/cas-service-area.json"]
 
 
 
@@ -344,8 +347,11 @@ For example:
 
 2020.06 - 11 Aug 2020 - blcontact-show-map - Now provides the extra_lat_lng parameter. You can provide additional lat/lng pairs, comma separated. multi_locations must = 1 to work. NB - OpenStreetMaps only
 
-2020.07 - 12 Aug 2020 - blcontact-show-map - Added the center_latlng parameter. Allows you extactly position the map center. NB - OpenStreetMaps only
+2020.07 - 12 Aug 2020 - blcontact-show-map - Added the center_latlng parameter. Allows you exactly position the map center. NB - OpenStreetMaps only
 
 2020.08 - 12 Aug 2020 - Corrected errant string inserted before comments of index.php
+
+2020.09 - 20 Aug 2020 - blcontact-show-map - Added the geojson_file parameter. Allows you display a custom overlay on the map. The overaly is a GEO.JSON file (https://geojson.io/), and must be placed relative to either the website root or theme directory. NB - OpenStreetMaps only.
+
 
 

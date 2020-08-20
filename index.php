@@ -1121,6 +1121,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			$url = $siteurl . '/wp-content/plugins/' . basename(dirname(__FILE__));
 			wp_enqueue_style( 'bl-leaflet-style', $url . '/leaflet/leaflet.css' );
 			wp_enqueue_script( 'bl-leaflet-script', $url . '/leaflet/leaflet.js', array('jquery'), "1.0", false );
+			wp_enqueue_script( 'bl-leaflet-ajax', $url . '/leaflet/leaflet.ajax.min.js', array('jquery'), "1.0", false );
 			wp_enqueue_script( 'bl-leaflet-providers-script', $url . '/leaflet/leaflet-providers.js', array('bl-leaflet-script'), "0.1", false );
 		}
 
@@ -1139,6 +1140,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 						'multi_locations' => 0,
 						'extra_lat_lng' => '',
 						'center_latlng' => '',
+						'geojson_file' => '',
 			), $atts );
 			
 			$width = $map_atts['minwidth'];
@@ -1151,6 +1153,8 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			$title = $map_atts['title'];
 			$pin_colour = "#000000";
 			$multi_locations = $map_atts['multi_locations'];
+
+			$geo_json_file = $map_atts['geojson_file'];
 
 			$extra_lat_lng = $map_atts['extra_lat_lng'];
 
@@ -1194,6 +1198,21 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 					if ( !( is_float($center_lat) && is_float($center_lat) ) ) {
 						$center_lat = 0;
 						$center_lng = 0;
+					}
+				}
+			}
+
+
+
+			// Read the GEO JSON file
+			if ( $geo_json_file != '') {
+				if ( file_exists( ABSPATH . $geo_json_file ) ) {
+					$geo_json_file = get_bloginfo("url") . $geo_json_file;
+				} else {
+					if ( file_exists( get_stylesheet_directory() . $geo_json_file ) ) {
+						$geo_json_file = get_stylesheet_directory_uri() . $geo_json_file;
+					} else {
+						$geo_json_file = '';
 					}
 				}
 			}
@@ -1263,7 +1282,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 							return "rgb("+ +r + "," + +g + "," + +b + ")";
 						}
 		
-						function mapInit( mapId, locations, place_title, zoom_level, pin_color, layer_provider, center_lat, center_lng ) {
+						function mapInit( mapId, locations, place_title, zoom_level, pin_color, layer_provider, center_lat, center_lng, geo_json_file ) {
 							var rgb_color = hexToRGB(pin_color);
 							var svg_pin = '<svg version="1.1" id="mapmarker" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 365 560" enable-background="new 0 0 365 560" xml:space="preserve"><g><path class="fill_color" style="fill:' + rgb_color + ';" d="M182.9,551.7c0,0.1,0.2,0.3,0.2,0.3S358.3,283,358.3,194.6c0-130.1-88.8-186.7-175.4-186.9 C96.3,7.9,7.5,64.5,7.5,194.6c0,88.4,175.3,357.4,175.3,357.4S182.9,551.7,182.9,551.7z M122.2,187.2c0-33.6,27.2-60.8,60.8-60.8 c33.6,0,60.8,27.2,60.8,60.8S216.5,248,182.9,248C149.4,248,122.2,220.8,122.2,187.2z"/></g></svg>';
 							var pin_url = encodeURI('data:image/svg+xml,' + svg_pin);
@@ -1276,6 +1295,23 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 							
 							// add Wikimedia style to map.
 							L.tileLayer.provider(layer_provider).addTo(map);
+
+			
+console.log('geojson:'+geo_json_file);
+							// add a GEO JSON later to the map
+							//if (geo_json_layer != '') {
+								//L.geoJSON(geo_json_layer).addTo(map);
+							//}
+
+
+							var myStyle = { color:'#000', fillColor:'#000', fillOpacity:2, weight:1, clickable:false};
+
+
+							var geojsonLayer = new L.GeoJSON.AJAX(geo_json_file, {style: myStyle});  
+
+							geojsonLayer.addTo(map);
+
+
 
 							var customIcon = L.icon({
 								iconUrl: pin_url,
@@ -1293,7 +1329,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 							}
 						}
 			
-						mapInit("<?php echo($randId); ?>", <?php echo(json_encode($locations)); ?>, "<?php echo($title); ?>", <?php echo($zoom); ?>, "<?php echo($pin_colour); ?>", "<?php echo ($layer_provider); ?>", "<?php echo ($center_lat); ?>", "<?php echo ($center_lng); ?>");
+						mapInit("<?php echo($randId); ?>", <?php echo(json_encode($locations)); ?>, "<?php echo($title); ?>", <?php echo($zoom); ?>, "<?php echo($pin_colour); ?>", "<?php echo ($layer_provider); ?>", "<?php echo ($center_lat); ?>", "<?php echo ($center_lng); ?>", "<?php echo ($geo_json_file); ?>");
 					});
 				</script>
 			<?php
