@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2020.10
+Version: 2021.01
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -75,7 +75,8 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2020.08 - 12 Aug 2020 - Corrected errant string inserted before comments of index.php
 2020.09 - 20 Aug 2020 - blcontact-show-map - Added the geojson_file parameter. Allows you display a custom overlay on the map. The overaly is a GEO.JSON file (https://geojson.io/), and must be placed relative to either the website root or theme directory. NB - OpenStreetMaps only.
 2020.10 - 21 Aug 2020 - blcontact-show-map - Minor styling improvements to the map layer defined by the geojson_file - NB - OpenStreetMaps only.
-
+2021.01 - 27 Jan 2021 - Changed all references to http://schema.org to https://schema.org
+											- Changed all references to http:// to https://
 
 */
 
@@ -622,7 +623,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 								$url_value = str_replace( '\r', '', $url_value );
 								$url_value = str_replace( PHP_EOL, '', $url_value );
 
-								$url_value = 'http://maps.google.com/?q='.urlencode($url_value);
+								$url_value = 'https://maps.google.com/?q='.urlencode($url_value);
 							} else {
 								$url_value = $url_value_override;
 							}
@@ -638,7 +639,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 								$url_value = str_replace( '\r', '', $url_value );
 								$url_value = str_replace( PHP_EOL, '', $url_value );
 
-								$url_value = 'http://maps.google.com/?q='.urlencode($url_value);
+								$url_value = 'https://maps.google.com/?q='.urlencode($url_value);
 							} else {
 								$url_value = $url_value_override;
 							}
@@ -676,7 +677,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 							}							
 						}
 
-						$value = '<span itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">'.$value.'</span>';
+						$value = '<span itemprop="address" itemscope itemtype="https://schema.org/PostalAddress">'.$value.'</span>';
 						if (strlen($atts['class']) > 0) {
 							$value = '<div class="'.$atts['class'].'">'.$value.'</div>';
 						}
@@ -689,7 +690,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 					if ($atts['type'] == 'town2') {
 						$value = '<span itemprop="addressLocality">'.$this->value( 'town2' ).'</span>';
 					}
-					$value = '<span itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">'.$value.'</span>';
+					$value = '<span itemprop="address" itemscope itemtype="https://schema.org/PostalAddress">'.$value.'</span>';
 						if (strlen($atts['class']) > 0) {
 							$value = '<div class="'.$atts['class'].'">'.$value.'</div>';
 						}
@@ -701,7 +702,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 						if ($atts['type'] == 'state2') {
 							$value = '<span itemprop="addressRegion">'.$this->value( 'state2' ).'</span>';
 						}
-						$value = '<span itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">'.$value.'</span>';
+						$value = '<span itemprop="address" itemscope itemtype="https://schema.org/PostalAddress">'.$value.'</span>';
 						if (strlen($atts['class']) > 0) {
 							$value = '<div class="'.$atts['class'].'">'.$value.'</div>';
 						}
@@ -713,7 +714,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 						if ($atts['type'] == 'state2') {
 							$value = '<span itemprop="postalCode">'.$this->value( 'postcode2' ).'</span>';
 						}	
-						$value = '<span itemprop="address" itemscope itemtype="http://schema.org/PostalAddress">'.$value.'</span>';
+						$value = '<span itemprop="address" itemscope itemtype="https://schema.org/PostalAddress">'.$value.'</span>';
 						if (strlen($atts['class']) > 0) {
 							$value = '<div class="'.$atts['class'].'">'.$value.'</div>';
 						}
@@ -881,7 +882,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 		public function insert_json_ld( $att ) {
 			$retHtml = '<!-- BL Contact JSON feed --><script type="application/ld+json">{';
 
-				$retHtml .= '"@context": "http://schema.org",';
+				$retHtml .= '"@context": "https://schema.org",';
 				$retHtml .= '"@type": "' . $this->value('seo_business_type') . '",';
 				$retHtml .= '"url": "' . get_bloginfo('url') . '",';
 				$retHtml .= '"address": {';
@@ -1288,7 +1289,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 		
 						function mapInit( mapId, locations, place_title, zoom_level, pin_color, layer_provider, center_lat, center_lng, geo_json_file ) {
 							var rgb_color = hexToRGB(pin_color);
-							var svg_pin = '<svg version="1.1" id="mapmarker" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 365 560" enable-background="new 0 0 365 560" xml:space="preserve"><g><path class="fill_color" style="fill:' + rgb_color + ';" d="M182.9,551.7c0,0.1,0.2,0.3,0.2,0.3S358.3,283,358.3,194.6c0-130.1-88.8-186.7-175.4-186.9 C96.3,7.9,7.5,64.5,7.5,194.6c0,88.4,175.3,357.4,175.3,357.4S182.9,551.7,182.9,551.7z M122.2,187.2c0-33.6,27.2-60.8,60.8-60.8 c33.6,0,60.8,27.2,60.8,60.8S216.5,248,182.9,248C149.4,248,122.2,220.8,122.2,187.2z"/></g></svg>';
+							var svg_pin = '<svg version="1.1" id="mapmarker" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 365 560" enable-background="new 0 0 365 560" xml:space="preserve"><g><path class="fill_color" style="fill:' + rgb_color + ';" d="M182.9,551.7c0,0.1,0.2,0.3,0.2,0.3S358.3,283,358.3,194.6c0-130.1-88.8-186.7-175.4-186.9 C96.3,7.9,7.5,64.5,7.5,194.6c0,88.4,175.3,357.4,175.3,357.4S182.9,551.7,182.9,551.7z M122.2,187.2c0-33.6,27.2-60.8,60.8-60.8 c33.6,0,60.8,27.2,60.8,60.8S216.5,248,182.9,248C149.4,248,122.2,220.8,122.2,187.2z"/></g></svg>';
 							var pin_url = encodeURI('data:image/svg+xml,' + svg_pin);
 
 							var map = L.map('<?php echo($randId); ?>').setView([locations[0], locations[1]], zoom_level);
@@ -1606,7 +1607,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 		
 						function mapInit( mapId, lat, lng, place_title, zoom_level, pin_color, latlng_pairs, clusterpath ) {
 							var rgb_color = hexToRGB(pin_color);
-							var svg_pin = '<svg version="1.1" id="mapmarker" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 365 560" enable-background="new 0 0 365 560" xml:space="preserve"><g><path class="fill_color" style="fill:' + rgb_color + ';" d="M182.9,551.7c0,0.1,0.2,0.3,0.2,0.3S358.3,283,358.3,194.6c0-130.1-88.8-186.7-175.4-186.9 C96.3,7.9,7.5,64.5,7.5,194.6c0,88.4,175.3,357.4,175.3,357.4S182.9,551.7,182.9,551.7z M122.2,187.2c0-33.6,27.2-60.8,60.8-60.8 c33.6,0,60.8,27.2,60.8,60.8S216.5,248,182.9,248C149.4,248,122.2,220.8,122.2,187.2z"/></g></svg>';
+							var svg_pin = '<svg version="1.1" id="mapmarker" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 365 560" enable-background="new 0 0 365 560" xml:space="preserve"><g><path class="fill_color" style="fill:' + rgb_color + ';" d="M182.9,551.7c0,0.1,0.2,0.3,0.2,0.3S358.3,283,358.3,194.6c0-130.1-88.8-186.7-175.4-186.9 C96.3,7.9,7.5,64.5,7.5,194.6c0,88.4,175.3,357.4,175.3,357.4S182.9,551.7,182.9,551.7z M122.2,187.2c0-33.6,27.2-60.8,60.8-60.8 c33.6,0,60.8,27.2,60.8,60.8S216.5,248,182.9,248C149.4,248,122.2,220.8,122.2,187.2z"/></g></svg>';
 							var pin_url = encodeURI('data:image/svg+xml,' + svg_pin);
 
 							var map = L.map('<?php echo($randId); ?>').setView([lat,lng], zoom_level);
