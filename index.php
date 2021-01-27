@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2021.02
+Version: 2021.03
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -78,6 +78,7 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2021.01 - 27 Jan 2021 - Changed all references to http://schema.org to https://schema.org
 											- Changed all references to http:// to https://
 2021.02 - 27 Jan 2021 - mapInit() - Map pin URL needs to reference http not https
+2021.03 - 23 Jan 2021 - mapInit() - Didn't get all of the references
 */
 
 
@@ -1289,7 +1290,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 		
 						function mapInit( mapId, locations, place_title, zoom_level, pin_color, layer_provider, center_lat, center_lng, geo_json_file ) {
 							var rgb_color = hexToRGB(pin_color);
-							var svg_pin = '<svg version="1.1" id="mapmarker" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 365 560" enable-background="new 0 0 365 560" xml:space="preserve"><g><path class="fill_color" style="fill:' + rgb_color + ';" d="M182.9,551.7c0,0.1,0.2,0.3,0.2,0.3S358.3,283,358.3,194.6c0-130.1-88.8-186.7-175.4-186.9 C96.3,7.9,7.5,64.5,7.5,194.6c0,88.4,175.3,357.4,175.3,357.4S182.9,551.7,182.9,551.7z M122.2,187.2c0-33.6,27.2-60.8,60.8-60.8 c33.6,0,60.8,27.2,60.8,60.8S216.5,248,182.9,248C149.4,248,122.2,220.8,122.2,187.2z"/></g></svg>';
+							var svg_pin = '<svg version="1.1" id="mapmarker" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 365 560" enable-background="new 0 0 365 560" xml:space="preserve"><g><path class="fill_color" style="fill:' + rgb_color + ';" d="M182.9,551.7c0,0.1,0.2,0.3,0.2,0.3S358.3,283,358.3,194.6c0-130.1-88.8-186.7-175.4-186.9 C96.3,7.9,7.5,64.5,7.5,194.6c0,88.4,175.3,357.4,175.3,357.4S182.9,551.7,182.9,551.7z M122.2,187.2c0-33.6,27.2-60.8,60.8-60.8 c33.6,0,60.8,27.2,60.8,60.8S216.5,248,182.9,248C149.4,248,122.2,220.8,122.2,187.2z"/></g></svg>';
 							var pin_url = encodeURI('data:image/svg+xml,' + svg_pin);
 
 							var map = L.map('<?php echo($randId); ?>').setView([locations[0], locations[1]], zoom_level);

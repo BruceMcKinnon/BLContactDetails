@@ -359,5 +359,5 @@ For example:
 
 2021.02 - 27 Jan 2021 - mapInit() - Map pin URL needs to reference http not https
 
-
+2021.03 - 23 Jan 2021 - mapInit() - Didn't get all of the references
 
