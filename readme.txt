@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2021.01
+Stable tag: 2021.02
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -356,6 +356,8 @@ For example:
 2020.10 - 21 Aug 2020 - blcontact-show-map - Minor styling improvements to the map layer defined by the geojson_file - NB - OpenStreetMaps only.
 
 2021.01 - 27 Jan 2021 - Updated references to http:// to https://
+
+2021.02 - 27 Jan 2021 - mapInit() - Map pin URL needs to reference http not https
 
 
 
