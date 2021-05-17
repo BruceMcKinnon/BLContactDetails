@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2021.04
+Version: 2021.05
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -80,6 +80,8 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2021.02 - 27 Jan 2021 - mapInit() - Map pin URL needs to reference http not https
 2021.03 - 23 Jan 2021 - mapInit() - Didn't get all of the references
 2021.04 - 2 Mar 2021	- insert_json_ld() - Was incorrectly setting the LD+JSON value for Lng field with the Lat value.
+2021.05 - 17 May 2021 - The #2 postcode was not being displayed when the 'postcode2' shortcode was called.
+
 */
 
 
@@ -713,7 +715,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 					case 'postcode':
 					case 'postcode2':
 						$value = '<span itemprop="postalCode">'.$this->value( 'postcode' ).'</span>';
-						if ($atts['type'] == 'state2') {
+						if ($atts['type'] == 'postcode2') {
 							$value = '<span itemprop="postalCode">'.$this->value( 'postcode2' ).'</span>';
 						}	
 						$value = '<span itemprop="address" itemscope itemtype="https://schema.org/PostalAddress">'.$value.'</span>';

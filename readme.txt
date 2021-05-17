@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2021.04
+Stable tag: 2021.05
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -362,5 +362,7 @@ For example:
 2021.03 - 23 Jan 2021 - mapInit() - Didn't get all of the references
 
 2021.04 - 2 Mar 2021 - insert_json_ld() - Was incorrectly setting the LD+JSON value for Lng field with the Lat value.
+
+2021.05 - 17 May 2021 - The #2 postcode was not being displayed when the 'postcode2' shortcode was called.
 
 
