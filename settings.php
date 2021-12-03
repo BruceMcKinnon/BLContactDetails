@@ -146,6 +146,14 @@ function bl_contact_class($type) {
 		case 'pin_colour2':
 		case 'misc1':
 		case 'misc2':
+		case 'misc3':
+		case 'misc4':
+		case 'misc5':
+		case 'misc6':
+		case 'misc7':
+		case 'misc8':
+		case 'misc9':
+		case 'misc10':
 		case 'business_logo_url':
 			$retHtml = 'class="two-col"';
 		break;

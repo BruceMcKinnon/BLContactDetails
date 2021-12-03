@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2021.05
+Version: 2021.06
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -81,6 +81,7 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2021.03 - 23 Jan 2021 - mapInit() - Didn't get all of the references
 2021.04 - 2 Mar 2021	- insert_json_ld() - Was incorrectly setting the LD+JSON value for Lng field with the Lat value.
 2021.05 - 17 May 2021 - The #2 postcode was not being displayed when the 'postcode2' shortcode was called.
+2021.06 - 3 Dec 2021 - Added the Misc#3 - Misc#10 fields.
 
 */
 
@@ -160,6 +161,14 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				'youtube' => __( 'YouTube', 'contact' ),
 				'misc1' => __( 'Misc #1', 'contact' ),
 				'misc2' => __( 'Misc #2', 'contact' ),
+				'misc3' => __( 'Misc #3', 'contact' ),
+				'misc4' => __( 'Misc #4', 'contact' ),
+				'misc5' => __( 'Misc #5', 'contact' ),
+				'misc6' => __( 'Misc #6', 'contact' ),
+				'misc7' => __( 'Misc #7', 'contact' ),
+				'misc8' => __( 'Misc #8', 'contact' ),
+				'misc9' => __( 'Misc #9', 'contact' ),
+				'misc10' => __( 'Misc 10', 'contact' ),
 				'googleanalytics_code' => __( 'Google Analytics Tracking Code', 'contact' ),
 				'googleanalytics_code_extra' => __( 'Extra GA Tracking Codes', 'contact' ),
 				'googlemapsapi_key' => __( 'Google Maps JS API key', 'contact' ),

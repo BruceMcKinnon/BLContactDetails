@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2021.05
+Stable tag: 2021.06
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -80,7 +80,7 @@ Current available contact fields are:
 	pinterest
 	youtube
 	hours
-	misc1, misc2
+	misc1, misc2, misc3, misc4, misc5, misc6, misc7, misc8, misc9, misc10
 
 
 
@@ -365,4 +365,5 @@ For example:
 
 2021.05 - 17 May 2021 - The #2 postcode was not being displayed when the 'postcode2' shortcode was called.
 
+2021.06 - 3 Dec 2021 - Added the Misc#3 - Misc#10 fields.
 
