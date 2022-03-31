@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2021.06
+Version: 2022.01
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -82,6 +82,8 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2021.04 - 2 Mar 2021	- insert_json_ld() - Was incorrectly setting the LD+JSON value for Lng field with the Lat value.
 2021.05 - 17 May 2021 - The #2 postcode was not being displayed when the 'postcode2' shortcode was called.
 2021.06 - 3 Dec 2021 - Added the Misc#3 - Misc#10 fields.
+
+2022.01 - 1 Apr 2022 - Fixed various PHP array index errors when compacting operating hours array.
 
 */
 
@@ -784,22 +786,36 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 							}
 
 							// Group days of the same open/close times together
+							// Start by initing the compacted times array
 							$compact_times = array();
+							array_push( $compact_times, $times[0]);
+							$compact_times[0][1] = $compact_times[0][0];
+
 							$marker_start = $times[0][0]; $marker_end = -1;
 
-//fb_log('compacted: '.print_r($times,true));
+							for ($idx = 1; $idx < count($times); $idx++) {
 
-							for ($idx = 1; $idx <= count($times); $idx++) {
-								if ( ( $times[$idx-1][2] != $times[$idx][2] ) || ( $times[$idx-1][3] != $times[$idx][3] ) ) {
-									$new_row = array($marker_start, $times[$idx-1][0], $times[$idx-1][2], $times[$idx-1][3]);
-									array_push($compact_times, $new_row);
-									$marker_start = $times[$idx][0];
+								if ( count($times[$idx-1]) > 3 ) {
+									if ( ( $times[$idx-1][2] != $times[$idx][2] ) || ( $times[$idx-1][3] != $times[$idx][3] ) ) {
 
-									if ($idx == (count($times)-1) ) {
-										$new_row = array($marker_start, $times[$idx][0], $times[$idx][2], $times[$idx][3]);
+										$new_row = array($marker_start, $times[$idx-1][0], $times[$idx-1][2], $times[$idx-1][3]);
+										if ( ( count($compact_times) == 1) && ($compact_times[0][0] == $compact_times[0][1]) ) {
+											$compact_times[0] = $new_row;
+										} else {
+											array_push($compact_times, $new_row);
+										}
+										$marker_start = $times[$idx][0];
 
-										if ($compact_times[$idx][0] != $new_row[$idx][0]) {
-											array_push($compact_times, $new_row);	
+										if ($idx == (count($times)-1) ) {
+											fb_log('<p>yes</p>');
+											$new_row = array($marker_start, $times[$idx][0], $times[$idx][2], $times[$idx][3]);
+
+											$compact_len = count($compact_times);
+											if ($compact_times[$compact_len-1][0] != $new_row[0]) {
+												array_push($compact_times, $new_row);	
+											}
+										} else {
+											fb_log('<p>no</p>');
 										}
 									}
 								}

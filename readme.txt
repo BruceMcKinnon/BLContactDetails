@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2021.06
+Stable tag: 2022.01
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -366,4 +366,7 @@ For example:
 2021.05 - 17 May 2021 - The #2 postcode was not being displayed when the 'postcode2' shortcode was called.
 
 2021.06 - 3 Dec 2021 - Added the Misc#3 - Misc#10 fields.
+
+2022.01 - 1 Apr 2022 - Fixed various PHP array index errors when compacting operating hours array.
+
 
