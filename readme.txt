@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2022.01
+Stable tag: 2022.03
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -235,6 +235,24 @@ For example:
 [/blcontact-faq]
 
 
+= How do I obtain values without using the shortcode? =
+
+You can call bl_build() directly from PHP. E.g.:
+
+<?php
+if ( class_exists("BLContactDetails") ) {
+	$obj = new BLContactDetails();
+
+	$addr = $obj->bl_build( array ("type" => "address", "rawtext" => 1, "echo" => 0) );
+	$ph = $obj->bl_build( array ("type" => "phone", "rawtext" => 1, "echo" => 0) );
+	$email = $obj->bl_build( array ("type" => "email", "nolink" => 1, "echo" => 0) );
+}
+?>
+
+
+
+
+
 
 
 
@@ -368,5 +386,10 @@ For example:
 2021.06 - 3 Dec 2021 - Added the Misc#3 - Misc#10 fields.
 
 2022.01 - 1 Apr 2022 - Fixed various PHP array index errors when compacting operating hours array.
+
+2022.02 - 8 Apr 2022 - Error in compacted times - was not saving the ending Day of Week if the times did not change from one day to the next.
+
+2022.03 - 1 Jun 2022 - Reorganised init() and moved db loading into load_details().
+This allows load_details() to be called from bl_build(), which in turn allows theme files to call bl_build directly to extract values.
 
 

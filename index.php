@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2022.01
+Version: 2022.03
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -84,7 +84,9 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2021.06 - 3 Dec 2021 - Added the Misc#3 - Misc#10 fields.
 
 2022.01 - 1 Apr 2022 - Fixed various PHP array index errors when compacting operating hours array.
-
+2022.02 - 8 Apr 2022 - Error in compacted times - was not saving the ending Day of Week if the times did not change from one day to the next.
+2022.03 - 1 Jun 2022 - Reorganised init() and moved db loading into load_details().
+						This allows load_details() to be called from bl_build(), which in turn allows theme files to call bl_build directly to extract values.
 */
 
 
@@ -132,7 +134,8 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 		}
 
 
-		public function init() {
+		public function load_details() {
+			
 			$this->details = array(
 				'phone' => __( 'Phone', 'contact' ),
 				'fax' => __( 'Fax', 'contact' ),
@@ -272,7 +275,12 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 					'email' => get_option( 'admin_email' )
 				) );
 			}
+		}
 
+		public function init() {
+
+			// Load the values out of the DB
+			$this->load_details();
 
 
 			load_plugin_textdomain(
@@ -508,7 +516,11 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				'standardformatting' => false,
 				'rawtext' => false,
 			), $args );
-		
+
+
+			if ( !$this->details) {
+				$this->load_details();
+			}
 
 			$atts['rawtext'] = $this->intToBool($atts['rawtext']);
 			$atts['standardformatting'] = $this->intToBool($atts['standardformatting']);
@@ -524,6 +536,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 					$value = $this->value( 'address' );
 					$atts['nolink'] = true;
 				}
+
 				if ($atts['type'] == 'street2') {
 					$value = $this->value( 'address2' );
 					$atts['nolink'] = true;
@@ -532,6 +545,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				if ( strlen( $value ) == 0 ) {
 					return;
 				}
+
 			}
 
 			switch ( $atts['type'] ) {
@@ -600,10 +614,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 							$value .= $this->value( 'state' ).$spacer;
 							$value .= $this->value( 'postcode' );
 						}
-
 					} else {
-
-
 
 						// v2016.04
 						// Note, the address prefix (e.g., 'Unit 1, Level 2, xyx Building') which is not used to 
@@ -697,6 +708,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 							$value = '<div class="'.$atts['class'].'">'.$value.'</div>';
 						}
 					}
+
 					break;
 
 				case 'town':
@@ -780,11 +792,12 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 
 						if (($atts['nolink'] == false) || ($atts['nolink'] == 'false')) {
+//fb_log('a..');
 							// Now sort according to open and close times to make the days as compatc as is possible.
 							if ( ($atts['standardformatting'] == true) || ($atts['standardformatting'] == true) ) {
 								usort($times,"cmp_times");
 							}
-
+//fb_log('times:'.print_r($times,true));
 							// Group days of the same open/close times together
 							// Start by initing the compacted times array
 							$compact_times = array();
@@ -794,11 +807,13 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 							$marker_start = $times[0][0]; $marker_end = -1;
 
 							for ($idx = 1; $idx < count($times); $idx++) {
-
+//fb_log('b..'.$idx);
 								if ( count($times[$idx-1]) > 3 ) {
+//fb_log('c..'. $times[$idx-1][2] .'|'. $times[$idx][2] .'|'. $times[$idx-1][3] .'|'. $times[$idx][3]);									
 									if ( ( $times[$idx-1][2] != $times[$idx][2] ) || ( $times[$idx-1][3] != $times[$idx][3] ) ) {
-
+//fb_log('d..');
 										$new_row = array($marker_start, $times[$idx-1][0], $times[$idx-1][2], $times[$idx-1][3]);
+//fb_log('new_row:'.print_r($new_row,true));
 										if ( ( count($compact_times) == 1) && ($compact_times[0][0] == $compact_times[0][1]) ) {
 											$compact_times[0] = $new_row;
 										} else {
@@ -807,7 +822,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 										$marker_start = $times[$idx][0];
 
 										if ($idx == (count($times)-1) ) {
-											fb_log('<p>yes</p>');
+//fb_log('<p>yes</p>');
 											$new_row = array($marker_start, $times[$idx][0], $times[$idx][2], $times[$idx][3]);
 
 											$compact_len = count($compact_times);
@@ -815,8 +830,12 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 												array_push($compact_times, $new_row);	
 											}
 										} else {
-											fb_log('<p>no</p>');
+//fb_log('<p>no</p>');
 										}
+									} else {
+										// Make sure you update the ending DOW if the hours are the same
+										$marker_end = $times[$idx][0];
+										$compact_times[0][1] = $marker_end;
 									}
 								}
 							}
@@ -827,7 +846,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 						// Sort according to Day Of the Week
 						usort($compact_times,"cmp_days");
-
+//fb_log('compact:'.print_r($compact_times,true));
 						$value = "";
 						$dowMap = array('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun');
 
@@ -864,7 +883,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			} else {
 				$detail = $atts['before'] . $value . $atts['after'];
 			}
-		
+
 			if ( $atts['echo'] ) {
 				echo $detail;
 			} else {
@@ -1922,6 +1941,7 @@ $contactDetails = new BLContactDetails();
 
 if ( isset( $contactDetails ) ) {
 	function contact_detail( $t = false, $b = '', $a = '', $i = false, $e = false, $c = '', $d = '', $n = false, $f = false, $r = false ){
+
 		$retHtml = apply_filters( 'contact_detail', array(
 			'type' => $t,
 			'before' => $b,
