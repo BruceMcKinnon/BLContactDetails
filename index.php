@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2022.03
+Version: 2022.04
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -87,6 +87,8 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2022.02 - 8 Apr 2022 - Error in compacted times - was not saving the ending Day of Week if the times did not change from one day to the next.
 2022.03 - 1 Jun 2022 - Reorganised init() and moved db loading into load_details().
 						This allows load_details() to be called from bl_build(), which in turn allows theme files to call bl_build directly to extract values.
+2022.04 - 2 Aug 2022 - Added aria-label tags to <a> anchors.
+
 */
 
 
@@ -561,7 +563,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 					$urlParts = parse_url($value);
 					// remove www
 					$value = preg_replace('/^www\./', '', $urlParts['host']);
-					$value = '<a class="'.$atts['class'].'"href="'.$url.'">'.$value.'</a>';
+					$value = '<a class="'.$atts['class'].'"href="'.$url.'" aria-label="Learn more at '.$value.'">'.$value.'</a>';
 
 					break;	
 
@@ -583,9 +585,9 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 							$value = $atts['displaytext'];
 						} else {
 							if ($atts['innercontent']) {
-								$value = '<a class="'.$atts['class'].'" href="tel:'.$value.'"><span itemprop="telephone" content='.$value.'>'.$atts['before'].$atts['displaytext'].$atts['after'].'</span></a>';
+								$value = '<a class="'.$atts['class'].'" href="tel:'.$value.'" aria-label="phone number"><span itemprop="telephone" content='.$value.'>'.$atts['before'].$atts['displaytext'].$atts['after'].'</span></a>';
 							} else {
-								$value = '<a class="'.$atts['class'].'"href="tel:'.$value.'"><span itemprop="telephone" content='.$value.'>'.$atts['displaytext'].'</span></a>';
+								$value = '<a class="'.$atts['class'].'"href="tel:'.$value.'" aria-label="phone number"><span itemprop="telephone" content='.$value.'>'.$atts['displaytext'].'</span></a>';
 							}
 						}
 					}
@@ -693,9 +695,9 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 						if (!$atts['nolink']) {
 
 							if ($atts['innercontent']) {
-								$value = '<a href="'.$url_value.'" target="_blank">'.$atts['before'].$value.$atts['after'].'</a>';
+								$value = '<a href="'.$url_value.'" target="_blank"  aria-label="address">'.$atts['before'].$value.$atts['after'].'</a>';
 							} else {
-								$value = '<a href="'.$url_value.'" target="_blank">'.$value.'</a>';
+								$value = '<a href="'.$url_value.'" target="_blank"  aria-label="address">'.$value.'</a>';
 							}
 						} else {
 							if ($atts['innercontent']) {
@@ -755,9 +757,9 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 							$atts['displaytext'] = $value;
 						}
 						if ($atts['innercontent']) {
-							$value = '<a class="'.$atts['class'].'" href="mailto:'.$value.'"><span itemprop="email">'.$atts['before'].$atts['displaytext'].$atts['after'].'</span></a>';
+							$value = '<a class="'.$atts['class'].'" href="mailto:'.$value.'"  aria-label="email"><span itemprop="email">'.$atts['before'].$atts['displaytext'].$atts['after'].'</span></a>';
 						} else {
-							$value = '<a class="'.$atts['class'].'" href="mailto:'.$value.'"><span itemprop="email">'.$atts['displaytext'].'</span></a>';
+							$value = '<a class="'.$atts['class'].'" href="mailto:'.$value.'"  aria-label="email"><span itemprop="email">'.$atts['displaytext'].'</span></a>';
 						}
 					}
 					break;
@@ -852,7 +854,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 						$para_tag = '<p>';
 						if (strlen($atts['class']) > 0) {
-							$para_tag = '<p class="'.$atts['class'].'">';
+							$para_tag = '<p class="'.$atts['class'].'"  aria-label="opening hours">';
 						}
 
 						for ($idx = 0; $idx < count($compact_times); $idx++) {
