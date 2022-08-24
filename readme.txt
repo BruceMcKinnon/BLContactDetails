@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2022.04
+Stable tag: 2022.05
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -393,5 +393,7 @@ if ( class_exists("BLContactDetails") ) {
 This allows load_details() to be called from bl_build(), which in turn allows theme files to call bl_build directly to extract values.
 
 2022.04 - 2 Aug 2022 - Added aria-label tags to <a> anchors.
+
+2022.05 - 24 Aug 2022 - Now only loads Leaflet as required and Cookie JS if the cookie checkbox is set.
 
 

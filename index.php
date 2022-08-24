@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2022.04
+Version: 2022.05
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -88,6 +88,7 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2022.03 - 1 Jun 2022 - Reorganised init() and moved db loading into load_details().
 						This allows load_details() to be called from bl_build(), which in turn allows theme files to call bl_build directly to extract values.
 2022.04 - 2 Aug 2022 - Added aria-label tags to <a> anchors.
+2022.05 - 24 Aug 2022 - Now only loads Leaflet as required and Cookie JS if the cookie checkbox is set.
 
 */
 
@@ -126,8 +127,8 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				add_action('wp_footer', array( &$this, 'bl_insert_cookie_warning'), 20 );
 				add_action('wp_head', array( &$this, 'bl_insert_custom_script'), 20 );
 
-				// And enqueue the Leaflet apis
-				add_action( 'wp_enqueue_scripts', array( &$this, 'bl_enqueue_leaflet' ) );
+				// And register the Leaflet apis - only enqueued if required
+				add_action( 'wp_enqueue_scripts', array( &$this, 'bl_register_leaflet' ) );
 
 				add_action('wp_head', array( &$this, 'bl_insert_google_analytics' ));
 				add_action('wp_footer', array( &$this, 'echo_json_ld' ));
@@ -310,53 +311,59 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 		// Insert the EU privacy policy cookie support
 		public function bl_insert_cookiefy() {
-			$siteurl = get_option('siteurl');
-			$url = $siteurl . '/wp-content/plugins/' . basename(dirname(__FILE__));
-			wp_enqueue_style( 'bl-eu-cookie-style', $url . '/jquery-eu-cookie-law-popup.css' );
-			wp_enqueue_script( 'bl-eu-cookie-law-script', $url . '/jquery-eu-cookie-law-popup.js', array('jquery'), "1.0", false );
+			// Only load if you want the cookie popup
+			if ( $this->value( 'eu_cookie_popup' ) == 'checked' ) { 
+				$siteurl = get_option('siteurl');
+				$url = $siteurl . '/wp-content/plugins/' . basename(dirname(__FILE__));
+				wp_enqueue_style( 'bl-eu-cookie-style', $url . '/jquery-eu-cookie-law-popup.css' );
+				wp_enqueue_script( 'bl-eu-cookie-law-script', $url . '/jquery-eu-cookie-law-popup.js', array('jquery'), "1.0", false );
+			}
 		}
 
 		// Display the EU cookie warning message
 		public function bl_insert_cookie_warning() {
 
-			$ga_code = $this->value('googleanalytics_code');
+			// Only load if you want the cookie popup
+			if ( $this->value( 'eu_cookie_popup' ) == 'checked' ) { 
+				$ga_code = $this->value('googleanalytics_code');
 
-			if ( strlen($ga_code) > 0 ) {
+				if ( strlen($ga_code) > 0 ) {
 
-				// First, get the URL to the privacy policy page
-				$priv_page_id = get_option('wp_page_for_privacy_policy');
-				if ($priv_page_id > 0) {
-					$priv_page_url = get_permalink($priv_page_id);
-				} else {
-					$priv_page_url = "#";
-				}
+					// First, get the URL to the privacy policy page
+					$priv_page_id = get_option('wp_page_for_privacy_policy');
+					if ($priv_page_id > 0) {
+						$priv_page_url = get_permalink($priv_page_id);
+					} else {
+						$priv_page_url = "#";
+					}
 
-				$auto_accept = false;
-				
-				if ( $this->value( 'eu_cookie_popup' ) != 'checked' ) { 
-					$auto_accept = true;
+					$auto_accept = false;
+					
+					if ( $this->value( 'eu_cookie_popup' ) != 'checked' ) { 
+						$auto_accept = true;
+						?>
+						<script>initialiseGoogleAnalytics();</script>
+						<?php
+					} else {
 					?>
-					<script>initialiseGoogleAnalytics();</script>
+					<script type="text/javascript">
+						var $jq = jQuery.noConflict();
+						$jq(document).euCookieLawPopup().init({
+							cookiePolicyUrl : '<?php echo($priv_page_url); ?>',
+							popupPosition : 'bottom',
+							popupTitle : '',
+							popupText : 'By continuing to use the site, you agree to the use of cookies. Click the Learn more button for our Privacy Policy',
+							buttonContinueTitle : 'Continue',
+							buttonLearnmoreTitle : 'Learn more',
+							buttonLearnmoreOpenInNewWindow : true,
+							agreementExpiresInDays : 365,
+							autoAcceptCookiePolicy : <?php echo( bool2str($auto_accept) ); ?>,
+							htmlMarkup : false,
+							colorStyle : 'blue'
+						});
+					</script>
 					<?php
-				} else {
-				?>
-				<script type="text/javascript">
-					var $jq = jQuery.noConflict();
-					$jq(document).euCookieLawPopup().init({
-						cookiePolicyUrl : '<?php echo($priv_page_url); ?>',
-						popupPosition : 'bottom',
-						popupTitle : '',
-						popupText : 'By continuing to use the site, you agree to the use of cookies. Click the Learn more button for our Privacy Policy',
-						buttonContinueTitle : 'Continue',
-						buttonLearnmoreTitle : 'Learn more',
-						buttonLearnmoreOpenInNewWindow : true,
-						agreementExpiresInDays : 365,
-						autoAcceptCookiePolicy : <?php echo( bool2str($auto_accept) ); ?>,
-						htmlMarkup : false,
-						colorStyle : 'blue'
-					});
-				</script>
-				<?php
+					}
 				}
 			}
 		}
@@ -369,6 +376,8 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			$ga_code = $this->value('googleanalytics_code');
 			$ga_code_extra = $this->value('googleanalytics_code_extra');
 
+			$eu_cookie_popup = $this->value('eu_cookie_popup');
+
 			if ( strlen($ga_code) > 0 ) {
 
 				$ga_script = "<!-- Global site tag (gtag.js) - Google Analytics -->
@@ -380,9 +389,18 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				$ga_script .= "<script>function initialiseGoogleAnalytics() { gtag('js', new Date()); gtag('config', '" . $ga_code . "', {'anonymize_ip': true} ); console.log('initialiseGoogleAnalytics initied'); ".$ga_code_extra." }</script>";
 
 				echo ($ga_script);
-				?>
+
+
+				if ( $eu_cookie_popup != 'checked' ) { ?>
+					<script type="text/javascript">
+						// Not presenting the cookie box, so auto init GA
+						initialiseGoogleAnalytics();
+					</script>
+				
+				<?php } else { ?>
 
 				<script type="text/javascript">
+					
 				// Subscribe for the cookie consent events
 				var $jq = jQuery.noConflict();
 				if ( $jq(document).euCookieLawPopup().alreadyAccepted() ) {
@@ -398,7 +416,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 					}
 				});
 				</script>
-			<?php
+			<?php }
 			}
 		}
 
@@ -1044,7 +1062,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			if ( $map_atts['googlemap'] == '1' ) {
 				$retHtml = $this->bl_show_google_map( $atts ); 
 			} else {
-				$retHtml = $this->bl_show_open_street_map ( $atts );
+				$retHtml = '<p>Zoom: '.$atts['zoom'].'</p>'.$this->bl_show_open_street_map ( $atts );
 			}
 			return $retHtml;
 		}
@@ -1170,14 +1188,22 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			return $retHtml;
 		}
 
-
-		public function bl_enqueue_leaflet() {
+		public function bl_register_leaflet() {
+			// Register Leaflet
 			$siteurl = get_option('siteurl');
 			$url = $siteurl . '/wp-content/plugins/' . basename(dirname(__FILE__));
-			wp_enqueue_style( 'bl-leaflet-style', $url . '/leaflet/leaflet.css' );
-			wp_enqueue_script( 'bl-leaflet-script', $url . '/leaflet/leaflet.js', array('jquery'), "1.0", false );
-			wp_enqueue_script( 'bl-leaflet-ajax', $url . '/leaflet/leaflet.ajax.min.js', array('jquery'), "1.0", false );
-			wp_enqueue_script( 'bl-leaflet-providers-script', $url . '/leaflet/leaflet-providers.js', array('bl-leaflet-script'), "0.1", false );
+			wp_register_style( 'bl-leaflet-style', $url . '/leaflet/leaflet.css' );
+			wp_register_script( 'bl-leaflet-script', $url . '/leaflet/leaflet.js', array('jquery'), "1.0", false );
+			wp_register_script( 'bl-leaflet-ajax', $url . '/leaflet/leaflet.ajax.min.js', array('jquery'), "1.0", false );
+			wp_register_script( 'bl-leaflet-providers-script', $url . '/leaflet/leaflet-providers.js', array('bl-leaflet-script'), "0.1", false );
+
+		}
+
+		public function bl_enqueue_leaflet() {
+			wp_enqueue_style( 'bl-leaflet-style' );
+			wp_enqueue_script( 'bl-leaflet-script' );
+			wp_enqueue_script( 'bl-leaflet-ajax' );
+			wp_enqueue_script( 'bl-leaflet-providers-script' );
 		}
 
 
@@ -1187,9 +1213,9 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 						'lng' => '',
 						'title' => '',
 						'pin' => '',
-						'zoom' => 15,
+						'zoom' => 10,
 						'addr_number' => 1,
-						'minheight' => '250px',
+						'minheight' => '300px',
 						'minwidth' => '100%',
 						'layerprovider' => 'Wikimedia',
 						'multi_locations' => 0,
@@ -1197,6 +1223,9 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 						'center_latlng' => '',
 						'geojson_file' => '',
 			), $atts );
+
+			// Enqueue the Leaflet libraries
+			$this->bl_enqueue_leaflet();
 			
 			$width = $map_atts['minwidth'];
 			$height = $map_atts['minheight'];
@@ -1295,7 +1324,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 
 			if ($zoom == '') {
-				$zoom = '15';
+				$zoom = 15;
 			}
 	
 			if ( !$this->startsWith($pin_colour, '#') ) {
@@ -1314,6 +1343,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				<div id="<?php echo($randId); ?>" class="blmap" style="min-height:<?php echo($height); ?>;min-width:<?php echo($width); ?>;"></div>
 			
 				<script type="text/javascript">
+
 					var $jq = jQuery.noConflict();
 					$jq( document ).ready( function() {
 			
@@ -1351,8 +1381,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 							// add Wikimedia style to map.
 							L.tileLayer.provider(layer_provider).addTo(map);
 
-			
-							console.log('geojson:'+geo_json_file);
+							console.log('geo_json_file:'+geo_json_file);
 
 							var myStyle = { color:pin_color, fillColor:pin_color, fillOpacity:0.2, weight:2, clickable:false};
 
@@ -1368,13 +1397,12 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 								marker = new L.marker([locations[i],locations[i+1]],{icon: customIcon}).addTo(map);
 							}
 
-
 							// Center map - cannot be positioned at 'Null Island' !!
 							if ( (center_lat != 0) && (center_lng != 0) ) {
 								map.panTo(new L.LatLng(center_lat, center_lng));
 							}
 						}
-			
+
 						mapInit("<?php echo($randId); ?>", <?php echo(json_encode($locations)); ?>, "<?php echo($title); ?>", <?php echo($zoom); ?>, "<?php echo($pin_colour); ?>", "<?php echo ($layer_provider); ?>", "<?php echo ($center_lat); ?>", "<?php echo ($center_lng); ?>", "<?php echo ($geo_json_file); ?>");
 					});
 				</script>
@@ -1566,6 +1594,9 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 						'minheight' => '250px',
 						'minwidth' => '100%',
 				), $atts );
+
+			// Enqueue the Leaflet libraries
+			$this->bl_enqueue_leaflet();
 
 			// Grab the settings directly from the database
 			$options = get_option('contact');
