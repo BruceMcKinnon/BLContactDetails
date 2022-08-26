@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2022.05
+Version: 2022.06
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -89,7 +89,7 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 						This allows load_details() to be called from bl_build(), which in turn allows theme files to call bl_build directly to extract values.
 2022.04 - 2 Aug 2022 - Added aria-label tags to <a> anchors.
 2022.05 - 24 Aug 2022 - Now only loads Leaflet as required and Cookie JS if the cookie checkbox is set.
-
+2022.05 - 26 Aug 2022 - Oops - removed debugging code left in previous release.
 */
 
 
@@ -1062,7 +1062,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			if ( $map_atts['googlemap'] == '1' ) {
 				$retHtml = $this->bl_show_google_map( $atts ); 
 			} else {
-				$retHtml = '<p>Zoom: '.$atts['zoom'].'</p>'.$this->bl_show_open_street_map ( $atts );
+				$retHtml = $this->bl_show_open_street_map ( $atts );
 			}
 			return $retHtml;
 		}
