@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2022.06
+Stable tag: 2022.07
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -397,3 +397,5 @@ This allows load_details() to be called from bl_build(), which in turn allows th
 2022.05 - 24 Aug 2022 - Now only loads Leaflet as required and Cookie JS if the cookie checkbox is set.
 
 2022.06 - 26 Aug 2022 - Oops - removed debugging code left in previous release.
+
+2022.07 - 1 Sep 2022 - bl_insert_google_analytics() - Fixed syntax issue when using multiple Google tracking codes.
