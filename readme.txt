@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2022.07
+Stable tag: 2023.02
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -399,3 +399,12 @@ This allows load_details() to be called from bl_build(), which in turn allows th
 2022.06 - 26 Aug 2022 - Oops - removed debugging code left in previous release.
 
 2022.07 - 1 Sep 2022 - bl_insert_google_analytics() - Fixed syntax issue when using multiple Google tracking codes.
+
+2023.01 - 2 Mar 2023 - bl_show_open_street_map() - Changed syntax for checking for Null Island - JS && was being converted to HTML entities.
+
+2023.02 - 27 Apr 2023 - Refactored opening hours compaction.
+
+
+
+
+

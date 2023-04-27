@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2022.07
+Version: 2023.02
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -91,6 +91,10 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2022.05 - 24 Aug 2022 - Now only loads Leaflet as required and Cookie JS if the cookie checkbox is set.
 2022.06 - 26 Aug 2022 - Oops - removed debugging code left in previous release.
 2022.07 - 1 Sep 2022 - bl_insert_google_analytics() - Fixed syntax issue when using multiple Google tracking codes.
+
+2023.01 - 2 Mar 2023 - bl_show_open_street_map() - Changed syntax for checking for Null Island - JS && was being converted to HTML entities
+2023.02 - 27 Apr 2023 - Refactored opening hours compaction.
+
 */
 
 
@@ -816,53 +820,35 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 
 						if (($atts['nolink'] == false) || ($atts['nolink'] == 'false')) {
-//fb_log('a..');
+
 							// Now sort according to open and close times to make the days as compatc as is possible.
 							if ( ($atts['standardformatting'] == true) || ($atts['standardformatting'] == true) ) {
 								usort($times,"cmp_times");
 							}
-//fb_log('times:'.print_r($times,true));
-							// Group days of the same open/close times together
-							// Start by initing the compacted times array
-							$compact_times = array();
-							array_push( $compact_times, $times[0]);
-							$compact_times[0][1] = $compact_times[0][0];
 
-							$marker_start = $times[0][0]; $marker_end = -1;
+							$compact_times = $times;
+							$num_times = count($times);
 
-							for ($idx = 1; $idx < count($times); $idx++) {
-//fb_log('b..'.$idx);
-								if ( count($times[$idx-1]) > 3 ) {
-//fb_log('c..'. $times[$idx-1][2] .'|'. $times[$idx][2] .'|'. $times[$idx-1][3] .'|'. $times[$idx][3]);									
-									if ( ( $times[$idx-1][2] != $times[$idx][2] ) || ( $times[$idx-1][3] != $times[$idx][3] ) ) {
-//fb_log('d..');
-										$new_row = array($marker_start, $times[$idx-1][0], $times[$idx-1][2], $times[$idx-1][3]);
-//fb_log('new_row:'.print_r($new_row,true));
-										if ( ( count($compact_times) == 1) && ($compact_times[0][0] == $compact_times[0][1]) ) {
-											$compact_times[0] = $new_row;
-										} else {
-											array_push($compact_times, $new_row);
-										}
-										$marker_start = $times[$idx][0];
+							for ($idx = $num_times-1; $idx > 0; $idx-- ) {
+								$compact_times[$idx][1] = $compact_times[$idx][0];
+							}
 
-										if ($idx == (count($times)-1) ) {
-//fb_log('<p>yes</p>');
-											$new_row = array($marker_start, $times[$idx][0], $times[$idx][2], $times[$idx][3]);
+							for ($idx = $num_times-1; $idx > 0; $idx-- ) {
 
-											$compact_len = count($compact_times);
-											if ($compact_times[$compact_len-1][0] != $new_row[0]) {
-												array_push($compact_times, $new_row);	
-											}
-										} else {
-//fb_log('<p>no</p>');
-										}
-									} else {
-										// Make sure you update the ending DOW if the hours are the same
-										$marker_end = $times[$idx][0];
-										$compact_times[0][1] = $marker_end;
-									}
+								if ( ( $compact_times[$idx-1][2] != $compact_times[$idx][2] ) || ( $compact_times[$idx-1][3] != $compact_times[$idx][3] )  ) {
+									// These are different times, so update the $compact_times[$idx][1] with the day number and continue
+									//$compact_times[$idx][1] = $compact_times[$idx][0];
+								} else {
+									// These are the same times, so update the $compact_times[$idx-1][1] with the day number and delete $compact_times[$idx-1]
+									$compact_times[$idx-1][1] = $compact_times[$idx][1];
+									unset( $compact_times[$idx] );
 								}
 							}
+							if ( !is_numeric($compact_times[0][1]) ) {
+								$compact_times[0][1] = $compact_times[0][0];
+							}
+
+
 						} else {
 							$compact_times = $times;
 						}
@@ -870,7 +856,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 						// Sort according to Day Of the Week
 						usort($compact_times,"cmp_days");
-//fb_log('compact:'.print_r($compact_times,true));
+
 						$value = "";
 						$dowMap = array('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun');
 
@@ -882,8 +868,12 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 						for ($idx = 0; $idx < count($compact_times); $idx++) {
 							$value .= $para_tag . '<span>' . $dowMap[$compact_times[$idx][0]-1];
 							if (($atts['nolink'] == false) || ($atts['nolink'] == 'false')) {
+
+
 								if ($compact_times[$idx][0] != $compact_times[$idx][1]) {
+//fb_log('   : '.$compact_times[$idx][0] . ' | ' . $compact_times[$idx][1]);
 									$value .= ' - ' . $dowMap[$compact_times[$idx][1]-1] . ': </span>';
+
 								} else {
 									// Make sure non-compacted times still format correctly.
 									$value .= ': ';
@@ -893,8 +883,8 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 								$value .= ': ';
 							}
 
-							$open = date("g:ia", mktime(abs($compact_times[$idx][2] / 100), abs($compact_times[$idx][2] % 100), 0, 1, 1, 2000) );
-							$close = date("g:ia", mktime(abs($compact_times[$idx][3] / 100), abs($compact_times[$idx][3] % 100), 0, 1, 1, 2000) );
+							$open = date("g:ia", mktime(intval($compact_times[$idx][2] / 100), intval($compact_times[$idx][2] % 100), 0, 1, 1, 2000) );
+							$close = date("g:ia", mktime(intval($compact_times[$idx][3] / 100), intval($compact_times[$idx][3] % 100), 0, 1, 1, 2000) );
 							$value .= $open . ' - ' . $close . '</p>';
 						}
 						$value .= $meta_content;
@@ -1347,7 +1337,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				<div id="<?php echo($randId); ?>" class="blmap" style="min-height:<?php echo($height); ?>;min-width:<?php echo($width); ?>;"></div>
 			
 				<script type="text/javascript">
-
+					
 					var $jq = jQuery.noConflict();
 					$jq( document ).ready( function() {
 			
@@ -1355,13 +1345,13 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 						function hexToRGB(h) {
 							let r = 0, g = 0, b = 0;
 		
-							// 3 digits
+							/* 3 digits */
 							if (h.length == 4) {
 								r = "0x" + h[1] + h[1];
 								g = "0x" + h[2] + h[2];
 								b = "0x" + h[3] + h[3];
 		
-							// 6 digits
+							/* 6 digits */
 							} else if (h.length == 7) {
 								r = "0x" + h[1] + h[2];
 								g = "0x" + h[3] + h[4];
@@ -1382,7 +1372,7 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 								attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 								}).addTo(map);
 							
-							// add Wikimedia style to map.
+							/* add Wikimedia style to map. */
 							L.tileLayer.provider(layer_provider).addTo(map);
 
 							console.log('geo_json_file:'+geo_json_file);
@@ -1401,8 +1391,8 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 								marker = new L.marker([locations[i],locations[i+1]],{icon: customIcon}).addTo(map);
 							}
 
-							// Center map - cannot be positioned at 'Null Island' !!
-							if ( (center_lat != 0) && (center_lng != 0) ) {
+							/* Center map - cannot be positioned at 'Null Island' !! */
+							if ( (center_lat + center_lng != 0) ) {
 								map.panTo(new L.LatLng(center_lat, center_lng));
 							}
 						}
@@ -1938,7 +1928,11 @@ function formatHours($time_value, $hours12 = false) {
 	if ($hours12) {
 		$format_params = "g:ia";
 	}
-	$formatted = date($format_params, mktime(abs($time_value / 100), abs($time_value % 100), 0, 1, 1, 2000) );
+
+	$a = intval(  $time_value / 100 );
+	$b = intval( $time_value % 100 );
+
+	$formatted = date($format_params, mktime($a, $b, 0, 1, 1, 2000) );
 
 	return $formatted;
 }
