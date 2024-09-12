@@ -6,7 +6,7 @@ Description: Manage contact details and opening hours for your web site. Additio
 Based on StvWhtly's original plugin - http://wordpress.org/extend/plugins/contact/
 Author: Bruce McKinnon
 Author URI: https://ingeni.net
-Version: 2023.02
+Version: 2024.01
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -95,6 +95,9 @@ License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 2023.01 - 2 Mar 2023 - bl_show_open_street_map() - Changed syntax for checking for Null Island - JS && was being converted to HTML entities
 2023.02 - 27 Apr 2023 - Refactored opening hours compaction.
 
+2024.01 - 12 Sep 2024 - Added Custom Script to be inserted into the <body>.
+						- Relabled the existing Custom Script option to make it obvious that it is inserted into the <head>
+
 */
 
 
@@ -130,7 +133,9 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 
 				add_action( 'wp_enqueue_scripts', array( &$this, 'bl_insert_cookiefy' ) );
 				add_action('wp_footer', array( &$this, 'bl_insert_cookie_warning'), 20 );
-				add_action('wp_head', array( &$this, 'bl_insert_custom_script'), 20 );
+				add_action('wp_head', array( &$this, 'bl_insert_custom_script_head'), 5 );
+				add_action('wp_body_open', array( &$this, 'bl_insert_custom_script_body'), 5 );
+
 
 				// And register the Leaflet apis - only enqueued if required
 				add_action( 'wp_enqueue_scripts', array( &$this, 'bl_register_leaflet' ) );
@@ -192,7 +197,11 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 				'seo_business_type' => __( 'Business Type', 'contact' ),
 				'seo_business_image' => __( 'Business Logo URL', 'contact' ),
 				'custom_script' => array(
-					'label' => __( 'Custom Script', 'contact' ),
+					'label' => __( 'Custom Script in <head>', 'contact' ),
+					'input' => 'textarea'
+				),
+				'custom_script_body' => array(
+					'label' => __( 'Custom Script in <body>', 'contact' ),
 					'input' => 'textarea'
 				),
 				'seo_extra_meta_tags' => array(
@@ -428,10 +437,19 @@ if ( !class_exists( 'BLContactDetails' ) ) {
 			}
 		}
 
-
-		public function bl_insert_custom_script() {
+		// Insert custom JS into the <head>
+		public function bl_insert_custom_script_head() {
 			if ( !is_admin() ) {
 				$custom_code = $this->value('custom_script');
+				if ( strlen( trim($custom_code) ) > 0 ) {
+					echo ($custom_code);
+				}
+			}
+		}
+		// Insert custom JS into the <body>
+		public function bl_insert_custom_script_body() {
+			if ( !is_admin() ) {
+				$custom_code = $this->value('custom_script_body');
 				if ( strlen( trim($custom_code) ) > 0 ) {
 					echo ($custom_code);
 				}

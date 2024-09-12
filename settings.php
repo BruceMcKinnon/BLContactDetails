@@ -19,6 +19,8 @@
 						name="<?php esc_attr_e( $this->tag . '[' . $key . ']' ); ?>"><?php
 							if ( array_key_exists( $key, $this->options ) ) {
 								// v2016.05 - preserve lines breaks in multiline text boxes and allow some HTML
+								// v2024.01 - added exception for noscript and iframe.
+								//	NOTE - there is currently no way to add exceptions for CSS display and visibility 
 								$allowed = array(
 									'span' => array(),
 									'br' => array(),
@@ -26,6 +28,15 @@
 									'strong' => array(),
 									'script' => array(),
 									'script async src' => array(),
+									'noscript' => array(),
+									'iframe' => array(
+										'src' => true,
+										'height'=> true,
+										'width'=> true,
+										'style' => true,
+										'frameborder'=> true,
+										'allowfullscreen' => true,
+									),
 								);
 								echo ( wp_kses ( $this->options[$key], $allowed ) ) ;
 								}

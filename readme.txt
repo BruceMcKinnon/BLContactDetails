@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon, with thanks to stvwhtly
 Tags: contact, global, details, options, info, phone, fax, mobile, email, address, microdata, trading hours
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2023.02
+Stable tag: 2024.01
 
 Adds the ability to easily save contact information (e.g., address, phone, fax, email, trading hours).
 
@@ -404,6 +404,8 @@ This allows load_details() to be called from bl_build(), which in turn allows th
 
 2023.02 - 27 Apr 2023 - Refactored opening hours compaction.
 
+2024.01 - 12 Sep 2024 - Added Custom Script to be inserted into the <body>.
+						- Relabled the existing Custom Script option to make it obvious that it is inserted into the <head>
 
 
 
